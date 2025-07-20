@@ -175,12 +175,12 @@ const GS25CareerPage = () => {
       mn: {
         title: 'GS25-д ажиллах',
         subtitle: '300+ дэлгүүрт ажлын байр нээлттэй',
-        findNearby: 'Ойролцоох дэлгүүр олох',
+        findNearby: 'Гэрт ойр ажилд оръё',
         locationPermission: 'Таны байршлыг асууж ойролцоох дэлгүүрүүдийг харуулна',
         urgent: 'Яаралтай',
         openings: 'ажлын байр',
-        apply: 'Өргөдөл гаргах',
-        selectStores: 'Та 3 хүртэл дэлгүүр сонгож болно',
+        apply: 'Ажилд оръё',
+        selectStores: 'Та өөрт ойрхон 3 хүртэл дэлгүүр сонгоорой',
         yourInfo: 'Таны мэдээлэл',
         age: 'Нас',
         name: 'Нэр',
@@ -330,8 +330,25 @@ const GS25CareerPage = () => {
           {/* STANDOUT CTA Button - Moved right after hero */}
           <button
             onClick={getUserLocation}
-            className="cta-button"
+            className={`cta-button main-action-btn${loading ? ' loading' : ''}`}
             disabled={loading}
+            style={{
+              background: '#00c853',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '1.8rem',
+              fontSize: '1.15rem',
+              fontWeight: 600,
+              padding: '1rem 2.2rem',
+              margin: '1.2rem auto 0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.7rem',
+              boxShadow: '0 2px 12px 0 rgba(0,200,83,0.18)',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.18s'
+            }}
           >
             {loading ? (
               <>
@@ -358,14 +375,14 @@ const GS25CareerPage = () => {
               <div className="stat-decoration"></div>
               <div className="stat-content">
                 <div className="stat-number">300+</div>
-                <div className="stat-label">Stores nationwide</div>
+                <div className="stat-label">Улсын хэмжээнд дэлгүүр</div>
               </div>
             </div>
             <div className="stat-card blue">
               <div className="stat-decoration"></div>
               <div className="stat-content">
                 <div className="stat-number">50+</div>
-                <div className="stat-label">Daily hires</div>
+                <div className="stat-label">Өдөрт ажилд орж буй</div>
               </div>
             </div>
           </div>
@@ -378,7 +395,7 @@ const GS25CareerPage = () => {
               </div>
               <div className="benefit-content">
                 <div className="benefit-title">{getTranslation('salaryRange')}</div>
-                <div className="benefit-subtitle">Competitive pay + bonuses</div>
+                <div className="benefit-subtitle">Цалингаа өдөртөө аваарай</div>
               </div>
             </div>
             
@@ -388,7 +405,7 @@ const GS25CareerPage = () => {
               </div>
               <div className="benefit-content">
                 <div className="benefit-title">{getTranslation('flexibleHours')}</div>
-                <div className="benefit-subtitle">Choose your shifts</div>
+                <div className="benefit-subtitle">Цагаа сонгох боломжтой</div>
               </div>
             </div>
             
@@ -398,7 +415,7 @@ const GS25CareerPage = () => {
               </div>
               <div className="benefit-content">
                 <div className="benefit-title">{getTranslation('noExperience')}</div>
-                <div className="benefit-subtitle">Full training provided</div>
+                <div className="benefit-subtitle">Бүрэн сургалттай</div>
               </div>
             </div>
           </div>
@@ -407,7 +424,7 @@ const GS25CareerPage = () => {
           
           {/* District Selection */}
           <div className="district-selection">
-            <p>Location not working?</p>
+            <p>Байршил ажиллахгүй байна уу?</p>
             <select
               onChange={(e) => {
                 if (e.target.value) {
@@ -427,13 +444,13 @@ const GS25CareerPage = () => {
               }}
               className="district-select"
             >
-              <option value="">Select your district...</option>
-              <option value="47.9250,106.9150">Bayangol</option>
-              <option value="47.9356,106.9894">Bayanzurkh</option>
-              <option value="47.9267,106.9083">Chingeltei</option>
-              <option value="47.8864,106.9057">Khan-Uul</option>
-              <option value="47.9187,106.9177">Sukhbaatar</option>
-              <option value="47.8994,106.7892">Songino Khairkhan</option>
+              <option value="">Дүүргээ сонгоно уу...</option>
+              <option value="47.9250,106.9150">Баянгол</option>
+              <option value="47.9356,106.9894">Баянзүрх</option>
+              <option value="47.9267,106.9083">Чингэлтэй</option>
+              <option value="47.8864,106.9057">Хан-Уул</option>
+              <option value="47.9187,106.9177">Сүхбаатар</option>
+              <option value="47.8994,106.7892">Сонгинохайрхан</option>
             </select>
           </div>
 
@@ -444,7 +461,7 @@ const GS25CareerPage = () => {
                 <Star key={i} className="star" />
               ))}
             </div>
-            <p>Rated 4.8/5 by 2,000+ employees</p>
+            <p>2,000+ ажилтнаас 4.8/5 үнэлгээтэй</p>
           </div>
         </div>
       )}
@@ -453,10 +470,9 @@ const GS25CareerPage = () => {
       {step === 'stores' && (
         <div className="page-content">
           <div className="section-header">
-            <h2 className="section-title">Stores Near You</h2>
+            <h2 className="section-title">Таны ойролцоох дэлгүүрүүд</h2>
             <p className="section-subtitle">{getTranslation('selectStores')}</p>
           </div>
-
           {/* Map with Apple-style Design */}
           <div className="map-container">
             {userLocation ? (
@@ -488,10 +504,10 @@ const GS25CareerPage = () => {
                 <div className="map-placeholder">
                   <div style={{textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)'}}>
                     <div style={{fontSize: '3rem', marginBottom: '0.75rem'}}>🗺️</div>
-                    <p style={{margin: '0.25rem 0', fontWeight: '500'}}>Interactive Map</p>
+                    <p style={{margin: '0.25rem 0', fontWeight: '500'}}>Интерактив газрын зураг</p>
                     <div className="map-error">
-                      <p style={{margin: '0.5rem 0', fontSize: '0.75rem'}}>Google Maps API key not configured</p>
-                      <p style={{margin: '0', fontSize: '0.6rem', opacity: '0.8'}}>Add REACT_APP_GOOGLE_MAPS_KEY to your .env file</p>
+                      <p style={{margin: '0.5rem 0', fontSize: '0.75rem'}}>Google Maps API түлхүүр тохируулаагүй байна</p>
+                      <p style={{margin: '0', fontSize: '0.6rem', opacity: '0.8'}}>.env файлд REACT_APP_GOOGLE_MAPS_KEY нэмнэ үү</p>
                     </div>
                   </div>
                 </div>
@@ -500,7 +516,7 @@ const GS25CareerPage = () => {
               <div className="map-placeholder">
                 <div style={{textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)'}}>
                   <MapPin className="map-icon" />
-                  <p style={{margin: '0.25rem 0', fontWeight: '500'}}>Finding your location...</p>
+                  <p style={{margin: '0.25rem 0', fontWeight: '500'}}>Таны байршлыг хайж байна...</p>
                 </div>
               </div>
             )}
@@ -511,7 +527,30 @@ const GS25CareerPage = () => {
             {nearbyStores.map((store, index) => (
               <div
                 key={store.id}
-                onClick={() => handleStoreSelect(store)}
+                onClick={() => {
+                  const wasSelected = selectedStores.find(s => s.id === store.id);
+                  handleStoreSelect(store);
+
+                  // If first store is being selected, scroll down a bit for next store
+                  if (!wasSelected && selectedStores.length === 0) {
+                    setTimeout(() => {
+                      window.scrollBy({ top: 180, left: 0, behavior: 'smooth' });
+                    }, 120);
+                  }
+                  // If second store is being selected, scroll down a bit for third store
+                  if (!wasSelected && selectedStores.length === 1) {
+                    setTimeout(() => {
+                      window.scrollBy({ top: 180, left: 0, behavior: 'smooth' });
+                    }, 120);
+                  }
+                  // If 2 stores are already selected and this one isn't, after selection, scroll to the button
+                  if (!wasSelected && selectedStores.length === 2) {
+                    setTimeout(() => {
+                      const btn = document.querySelector('.continue-button');
+                      if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                  }
+                }}
                 className={`store-card ${selectedStores.find(s => s.id === store.id) ? 'selected' : ''}`}
               >
                 <div className="store-header">
@@ -527,7 +566,7 @@ const GS25CareerPage = () => {
                         )}
                         <div className="store-distance">
                           <Navigation className="icon-sm" />
-                          <span>{store.distance} km away</span>
+                          <span>{store.distance} км зайтай</span>
                         </div>
                       </div>
                     </div>
@@ -556,9 +595,38 @@ const GS25CareerPage = () => {
 
           {/* Continue Button */}
           <button
-            onClick={() => setStep('apply')}
+            onClick={() => {
+              setStep('apply');
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }, 80);
+            }}
             disabled={selectedStores.length === 0}
-            className={`continue-button ${selectedStores.length > 0 ? 'enabled' : 'disabled'}`}
+            className={`continue-button main-action-btn${
+              selectedStores.length === 0
+                ? ' disabled'
+                : selectedStores.length === 3
+                  ? ' ready'
+                  : ' enabled'
+            }`}
+            autoFocus={selectedStores.length === 3}
+            style={{
+              background: selectedStores.length === 0 ? '#e0e0e0' : '#00c853',
+              color: selectedStores.length === 0 ? '#bdbdbd' : '#fff',
+              border: 'none',
+              borderRadius: '1.8rem',
+              fontSize: '1.15rem',
+              fontWeight: 600,
+              padding: '1rem 2.2rem',
+              margin: '1.2rem auto 0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.7rem',
+              boxShadow: selectedStores.length === 0 ? 'none' : '0 2px 12px 0 rgba(0,200,83,0.18)',
+              cursor: selectedStores.length === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.18s'
+            }}
           >
             <span>{getTranslation('apply')} ({selectedStores.length}/3)</span>
             <ChevronRight className="icon" />
@@ -571,7 +639,7 @@ const GS25CareerPage = () => {
         <div className="page-content">
           <div className="section-header">
             <h2 className="section-title">{getTranslation('yourInfo')}</h2>
-            <p className="section-subtitle">Quick 2-minute application ✨</p>
+            <p className="section-subtitle">Хурдан 2 минутын анкет ✨</p>
           </div>
 
           <div className="form-container">
@@ -600,7 +668,7 @@ const GS25CareerPage = () => {
                 value={applicantData.name}
                 onChange={(e) => setApplicantData({...applicantData, name: e.target.value})}
                 className="form-input"
-                placeholder="Your awesome name"
+                placeholder="Таны нэр"
               />
             </div>
 
@@ -611,12 +679,25 @@ const GS25CareerPage = () => {
                 value={applicantData.experience}
                 onChange={(e) => setApplicantData({...applicantData, experience: e.target.value})}
                 className="form-input"
+                style={{
+                  background: '#fff',
+                  color: '#222',
+                  border: '1px solid #bdbdbd',
+                  borderRadius: '1rem',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  padding: '0.7rem 1.2rem',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none',
+                  outline: 'none'
+                }}
               >
-                <option value="">Choose your level...</option>
-                <option value="none">No retail experience (We'll teach you!)</option>
-                <option value="less1">Less than 1 year</option>
-                <option value="1-3">1-3 years</option>
-                <option value="more3">More than 3 years (Pro level!)</option>
+                <option value="">Түвшингээ сонгоно уу...</option>
+                <option value="none">Дэлгүүрийн туршлагагүй (Бид заана!)</option>
+                <option value="less1">1 жилээс бага</option>
+                <option value="1-3">1-3 жил</option>
+                <option value="more3">3 жилээс дээш (Мэргэжлийн!)</option>
               </select>
             </div>
 
@@ -665,7 +746,7 @@ const GS25CareerPage = () => {
             <div className="stores-summary">
               <p className="summary-title">
                 <Heart className="icon-sm" />
-                Applying to these awesome stores:
+                Та доорх дэлгүүрүүдийг сонгосон байна:
               </p>
               <div className="summary-list">
                 {selectedStores.map((store) => (
@@ -682,12 +763,29 @@ const GS25CareerPage = () => {
           <button
             onClick={startAIInterview}
             disabled={!applicantData.age || !applicantData.name || loading}
-            className={`interview-button ${applicantData.age && applicantData.name && !loading ? 'enabled' : 'disabled'}`}
+            className={`interview-button main-action-btn${applicantData.age && applicantData.name && !loading ? ' enabled' : ' disabled'}`}
+            style={{
+              background: !applicantData.age || !applicantData.name || loading ? '#e0e0e0' : '#00c853',
+              color: !applicantData.age || !applicantData.name || loading ? '#bdbdbd' : '#fff',
+              border: 'none',
+              borderRadius: '1.8rem',
+              fontSize: '1.15rem',
+              fontWeight: 600,
+              padding: '1rem 2.2rem',
+              margin: '1.2rem auto 0 auto',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.7rem',
+              boxShadow: !applicantData.age || !applicantData.name || loading ? 'none' : '0 2px 12px 0 rgba(0,200,83,0.18)',
+              cursor: !applicantData.age || !applicantData.name || loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.18s'
+            }}
           >
             {loading ? (
               <>
                 <div className="spinner"></div>
-                <span>Connecting to AI recruiter...</span>
+                <span>AI ажилд авагчтай холбогдож байна...</span>
               </>
             ) : (
               <>
@@ -700,7 +798,7 @@ const GS25CareerPage = () => {
 
           {/* Footer Message */}
           <div className="footer-message">
-            <p>🤖 Our AI recruiter is super friendly and quick!</p>
+            <p>🤖 Манай AI ажилд авагч маш найрсаг, хурдан!</p>
           </div>
         </div>
       )}
