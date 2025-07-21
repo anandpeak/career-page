@@ -1,5 +1,8 @@
+import 'leaflet/dist/leaflet.css'; // <-- Add this as the first import
 import React, { useState, useEffect } from 'react';
 import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import './GS25CareerPage.css';
 
 // Real GS25 store data - replace with API call to your backend
@@ -38,6 +41,14 @@ const GS25CareerPage = () => {
     experience: '',
   });
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  // Fix default marker icon for Leaflet (otherwise markers may be invisible)
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
 
   // Load all stores from backend
   const loadStoresFromBackend = async () => {
@@ -272,6 +283,14 @@ const GS25CareerPage = () => {
     return translations[language][key] || key;
   };
 
+  // Automatically ask for location on mount (optional: only if step is 'landing')
+  useEffect(() => {
+    // Uncomment the next line to always ask for location on page load
+    // getUserLocation();
+    // Or, ask only if you want to auto-show stores page:
+    // if (step === 'landing') getUserLocation();
+  }, []);
+
   return (
     <div className="app-container">
       {/* Modern Header with Glassmorphism */}
@@ -474,44 +493,48 @@ const GS25CareerPage = () => {
             <p className="section-subtitle">{getTranslation('selectStores')}</p>
           </div>
           {/* Map with Apple-style Design */}
-          <div className="map-container">
+          <div className="map-container" style={{ height: '50vh', minHeight: 300 }}>
             {userLocation ? (
-              process.env.REACT_APP_GOOGLE_MAPS_KEY ? (
-                <img 
-                  src={`https://maps.googleapis.com/maps/api/staticmap?center=${userLocation.lat},${userLocation.lng}&zoom=13&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:You%7C${userLocation.lat},${userLocation.lng}${nearbyStores.map(store => `&markers=color:${store.urgent ? 'red' : 'green'}%7Clabel:${store.openings}%7C${store.lat},${store.lng}`).join('')}&key=${process.env.REACT_APP_GOOGLE_MAPS_KEY}&style=feature:all%7Celement:geometry%7Ccolor:0x1e88e5&style=feature:all%7Celement:labels.text.stroke%7Ccolor:0x1e88e5&style=feature:all%7Celement:labels.text.fill%7Ccolor:0xffffff&style=feature:administrative.locality%7Celement:labels.text.fill%7Ccolor:0x26c6da&style=feature:poi%7Celement:labels.text.fill%7Ccolor:0x26c6da&style=feature:road%7Celement:geometry%7Ccolor:0x42a5f5&style=feature:water%7Celement:geometry%7Ccolor:0x0d47a1`}
-                  alt="Store locations map"
-                  className="map-image"
-                  onError={(e) => {
-                    console.error('Map failed to load');
-                    e.target.style.display = 'none';
-                    const placeholder = e.target.parentNode.querySelector('.map-placeholder');
-                    if (placeholder) {
-                      placeholder.style.display = 'flex';
-                      placeholder.innerHTML = `
-                        <div style="text-align: center; color: rgba(255, 255, 255, 0.9);">
-                          <div style="font-size: 3rem; margin-bottom: 0.75rem;">📍</div>
-                          <p style="margin: 0.25rem 0; font-weight: 500;">Map Unavailable</p>
-                          <p style="margin: 0.25rem 0; font-size: 0.75rem; color: rgba(255, 255, 255, 0.7);">Check API key configuration</p>
-                        </div>
-                      `;
-                    }
-                  }}
-                  onLoad={() => {
-                    console.log('✅ Map loaded successfully');
-                  }}
+              <MapContainer
+                center={[userLocation.lat, userLocation.lng]}
+                zoom={13}
+                scrollWheelZoom={true}
+                style={{ height: '100%', width: '100%', borderRadius: '1.5rem', boxShadow: '0 2px 12px 0 rgba(0,200,83,0.18)' }}
+                attributionControl={true}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
                 />
-              ) : (
-                <div className="map-placeholder">
-                  <div style={{textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)'}}>
-                    <div style={{fontSize: '3rem', marginBottom: '0.75rem'}}>🗺️</div>
-                    <p style={{margin: '0.25rem 0', fontWeight: '500'}}>Интерактив газрын зураг</p>
-                    <div className="map-error">
-                      <p style={{margin: '0.5rem 0', fontSize: '0.75rem'}}>Google Maps API түлхүүр тохируулаагүй байна</p>
-                      <p style={{margin: '0', fontSize: '0.6rem', opacity: '0.8'}}>.env файлд REACT_APP_GOOGLE_MAPS_KEY нэмнэ үү</p>
-                    </div>
-                  </div>
-                </div>
-              )
+                {/* User marker */}
+                <Marker position={[userLocation.lat, userLocation.lng]}>
+                  <Popup>Таны байршил</Popup>
+                </Marker>
+                {/* Store markers */}
+                {nearbyStores.map(store => (
+                  <Marker
+                    key={store.id}
+                    position={[store.lat, store.lng]}
+                    icon={L.icon({
+                      iconUrl: store.urgent
+                        ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
+                        : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                      iconSize: [25, 41],
+                      iconAnchor: [12, 41],
+                      popupAnchor: [1, -34],
+                      shadowSize: [41, 41]
+                    })}
+                  >
+                    <Popup>
+                      <strong>{store.name}</strong><br />
+                      {store.address}<br />
+                      {store.openings} {getTranslation('openings')}
+                      {store.urgent && <span style={{color: 'red'}}> 🔥 {getTranslation('urgent')}</span>}
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
             ) : (
               <div className="map-placeholder">
                 <div style={{textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)'}}>
