@@ -285,10 +285,7 @@ const GS25CareerPage = () => {
 
   // Automatically ask for location on mount (optional: only if step is 'landing')
   useEffect(() => {
-    // Uncomment the next line to always ask for location on page load
-    // getUserLocation();
-    // Or, ask only if you want to auto-show stores page:
-    // if (step === 'landing') getUserLocation();
+    // getUserLocation(); // <-- comment or remove this line to require manual click
   }, []);
 
   return (
