@@ -383,6 +383,39 @@ const MultiCompanyCareerPage = () => {
             </span>
           </div>
           <div className="language-selector">
+            {/* Compact District Selection - shown when location fails */}
+            {/* {(step === 'landing' && (locationError || !userLocation) && !loading) && (
+              <div className="compact-district-selection">
+                <div className="compact-dropdown-container">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const [lat, lng] = e.target.value.split(',').map(Number);
+                        setUserLocation({ lat, lng });
+                        setLocationError('');
+                        setTimeout(() => {
+                          navigateTo('stores');
+                        }, 500);
+                      }
+                    }}
+                    className="compact-district-select"
+                    defaultValue=""
+                  >
+                    <option value="">📍 Дүүрэг сонгох</option>
+                    <option value="47.9250,106.9150">Баянгол</option>
+                    <option value="47.9356,106.9894">Баянзүрх</option>
+                    <option value="47.9267,106.9083">Чингэлтэй</option>
+                    <option value="47.8864,106.9057">Хан-Уул</option>
+                    <option value="47.9187,106.9177">Сүхбаатар</option>
+                    <option value="47.8994,106.7892">Сонгинохайрхан</option>
+                  </select>
+                </div>
+                {locationError && (
+                  <div className="compact-error-message">{locationError}</div>
+                )}
+              </div>
+            )} */}
+            
             {/* Demo: Company Switcher */}
             <button
               onClick={() => {
@@ -425,11 +458,11 @@ const MultiCompanyCareerPage = () => {
           </div>
 
           {/* Manual Location Selection (if location fails) */}
-          {(locationError || !userLocation) && (
+          {/* {(locationError || !userLocation) && (
             <div className="district-selection">
               <div className="district-header">
                 <MapPin className="icon-sm" style={{ color: companyConfig.brandColor }} />
-                <h3>Дүүргээ сонгоно уу</h3>
+                <h3>Дүүрэг сонгох</h3>
               </div>
               {locationError && (
                 <p className="location-error-text">{locationError}</p>
@@ -454,7 +487,7 @@ const MultiCompanyCareerPage = () => {
                 <option value="47.8994,106.7892">Сонгинохайрхан дүүрэг</option>
               </select>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -913,6 +946,11 @@ const MultiCompanyCareerPage = () => {
           gap: 0.75rem;
         }
 
+        .header-right {
+          display: flex;
+          align-items: center;
+        }
+
         .back-button {
           background: rgba(59, 130, 246, 0.1);
           border: 1px solid rgba(59, 130, 246, 0.2);
@@ -934,27 +972,6 @@ const MultiCompanyCareerPage = () => {
           padding: 0.6rem 1rem;
           border-radius: 12px;
           letter-spacing: -0.3px;
-        }
-
-        .header-title {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: rgba(226, 232, 240, 0.9);
-        }
-
-        .selection-count {
-          background: var(--brand-color);
-          color: white;
-          padding: 0.125rem 0.375rem;
-          border-radius: 6px;
-          font-size: 0.75rem;
-          margin-left: 0.5rem;
-        }
-
-        .language-selector {
-          position: relative;
-          display: flex;
-          gap: 0.5rem;
         }
 
         .company-switcher {
@@ -1243,6 +1260,10 @@ const MultiCompanyCareerPage = () => {
           border-radius: 12px;
           padding: 0.75rem;
           margin-top: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .location-fallback-section {
           margin-bottom: 2rem;
         }
 
@@ -1433,10 +1454,10 @@ const MultiCompanyCareerPage = () => {
         }
 
         .district-select.mobile-select {
-          padding: 1.2rem 3rem 1.2rem 1rem;
-          font-size: 1.1rem;
+          padding: 1rem 2.5rem 1rem 0.875rem;
+          font-size: 0.9rem;
           border-radius: 16px;
-          min-height: 56px;
+          min-height: 48px;
           background: rgba(255, 255, 255, 0.98) !important;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
@@ -1456,11 +1477,118 @@ const MultiCompanyCareerPage = () => {
 
         .select-arrow {
           position: absolute;
-          right: 1rem;
+          right: 0.75rem;
           top: 50%;
           transform: translateY(-50%);
           pointer-events: none;
           color: #6b7280;
+        }
+
+        .select-arrow svg {
+          width: 10px;
+          height: 6px;
+        }
+
+        .district-help-text {
+          margin: 0;
+          font-size: 0.875rem;
+          color: rgba(134, 239, 172, 0.9);
+          text-align: center;
+          background: rgba(34, 197, 94, 0.1);
+          padding: 0.75rem;
+          border-radius: 8px;
+          border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .location-error-text {
+          color: rgba(252, 165, 165, 0.95);
+          background: rgba(239, 68, 68, 0.15);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 12px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          text-align: center;
+        }
+
+        .district-selection.mobile-friendly {
+          margin: 1rem 0 2rem 0;
+          padding: 1.25rem;
+          background: rgba(59, 130, 246, 0.1);
+          border: 2px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .district-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .district-header h3 {
+          margin: 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: white;
+        }
+
+        .district-dropdown-container {
+          position: relative;
+          margin-bottom: 1rem;
+        }
+
+        .district-select {
+          width: 100%;
+          padding: 1rem 3rem 1rem 1rem;
+          background: rgba(255, 255, 255, 0.95) !important;
+          color: #1f2937 !important;
+          border: 2px solid rgba(59, 130, 246, 0.3) !important;
+          border-radius: 12px;
+          font-size: 1rem;
+          font-weight: 500;
+          outline: none;
+          transition: all 0.2s ease;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          cursor: pointer;
+        }
+
+        .district-select.mobile-select {
+          padding: 1rem 2.5rem 1rem 0.875rem;
+          font-size: 0.9rem;
+          border-radius: 16px;
+          min-height: 48px;
+          background: rgba(255, 255, 255, 0.98) !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .district-select:focus {
+          background: rgba(255, 255, 255, 1) !important;
+          border-color: var(--brand-color) !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .district-select option {
+          background: white !important;
+          color: #1f2937 !important;
+          padding: 0.75rem;
+          font-size: 1rem;
+        }
+
+        .select-arrow {
+          position: absolute;
+          right: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          color: #6b7280;
+        }
+
+        .select-arrow svg {
+          width: 10px;
+          height: 6px;
         }
 
         .district-help-text {
@@ -1981,25 +2109,25 @@ const MultiCompanyCareerPage = () => {
           }
 
           .district-selection.mobile-friendly {
-            margin: 0.75rem 0 1.5rem 0;
-            padding: 1rem;
-            border-radius: 20px;
+            margin: 0.5rem 0 1rem 0;
+            padding: 0.75rem;
+            border-radius: 16px;
           }
 
           .district-header h3 {
-            font-size: 1rem;
+            font-size: 0.9rem;
           }
 
           .district-select.mobile-select {
-            padding: 1.1rem 2.5rem 1.1rem 0.875rem;
-            font-size: 1rem;
-            min-height: 52px;
-            border-radius: 14px;
+            padding: 0.875rem 2.25rem 0.875rem 0.75rem;
+            font-size: 0.85rem;
+            min-height: 44px;
+            border-radius: 12px;
           }
 
           .district-help-text {
-            font-size: 0.8rem;
-            padding: 0.625rem;
+            font-size: 0.75rem;
+            padding: 0.5rem;
           }
 
           .cta-button {
@@ -2066,6 +2194,19 @@ const MultiCompanyCareerPage = () => {
           .urgent-badge {
             font-size: 0.7rem;
             padding: 0.2rem 0.4rem;
+          }
+
+          /* Compact district selection mobile styling */
+          .compact-district-select {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.7rem;
+            min-width: 120px;
+          }
+
+          .compact-error-message {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.6rem;
+            min-width: 180px;
           }
         }
       `}</style>
