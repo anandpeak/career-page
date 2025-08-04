@@ -1,11 +1,11 @@
 import React from 'react';
-import GS25CareerPage from './GS25CareerPage';
+import MultiCompanyCareerPage from './MultiCompanyCareerPage';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <GS25CareerPage />
+      <MultiCompanyCareerPage />
     </div>
   );
 }

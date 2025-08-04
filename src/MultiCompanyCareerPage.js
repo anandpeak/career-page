@@ -478,7 +478,6 @@ const MultiCompanyCareerPage = () => {
               onClick={getUserLocation}
               className={`cta-button main-action-btn ${loading ? 'loading' : ''}`}
               disabled={loading}
-              style={{ background: companyConfig.brandColor, marginBottom: '0.75rem' }}
             >
               {loading ? (
                 <>
@@ -487,8 +486,9 @@ const MultiCompanyCareerPage = () => {
                 </>
               ) : (
                 <>
-                  <Navigation className="icon" />
+                  <MapPin className="icon-left" />
                   <span>{getTranslation('findNearby')}</span>
+                  <Zap className="icon-right" />
                 </>
               )}
             </button>
@@ -1088,14 +1088,76 @@ const MultiCompanyCareerPage = () => {
 
         .cta-button {
           width: 100%;
-          padding: 1.25rem;
-          border-radius: 16px;
+          padding: 1.25rem 2rem;
+          border-radius: 50px;
           font-weight: 600;
           font-size: 1.125rem;
           color: white;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           border: none;
           cursor: pointer;
           transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+          margin-bottom: 0.75rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .cta-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transition: left 0.5s;
+        }
+
+        .cta-button:hover:not(:disabled)::before {
+          left: 100%;
+        }
+
+        .cta-button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .cta-button:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .cta-button .icon-left {
+          width: 1.5rem;
+          height: 1.5rem;
+          flex-shrink: 0;
+        }
+
+        .cta-button .icon-right {
+          width: 1.25rem;
+          height: 1.25rem;
+          flex-shrink: 0;
+        }
+
+        .cta-button span {
+          flex: 1;
+          text-align: center;
+          font-weight: 600;
+          letter-spacing: 0.25px;
+        }
+
+        .cta-button.loading {
+          background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+          box-shadow: 0 4px 20px rgba(107, 114, 128, 0.3);
+        }
+
+        .cta-button.loading span {
           display: flex;
           align-items: center;
           justify-content: center;
