@@ -232,8 +232,8 @@ const MultiCompanyCareerPage = () => {
     
     // Check if geolocation is supported
     if (!navigator.geolocation) {
-      setLocationError('Таны төхөөрөмж байршил тодорхойлохыг дэмжихгүй байна');
-      handleLocationFallback(companyData.stores);
+      setLocationError('Таны төхөөрөмж байршил тодорхойлохыг дэмжихгүй байна. Дүүргээ гараар сонгоно уу.');
+      setLoading(false);
       return;
     }
 
@@ -242,7 +242,7 @@ const MultiCompanyCareerPage = () => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     
     // Safari-specific timeout (shorter for better UX)
-    const timeoutDuration = (isSafari || isIOS) ? 8000 : 15000;
+    const timeoutDuration = (isSafari || isIOS) ? 6000 : 10000;
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -258,32 +258,33 @@ const MultiCompanyCareerPage = () => {
         switch(error.code) {
           case error.PERMISSION_DENIED:
             if (isSafari || isIOS) {
-              errorMessage = 'Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо > Safari > Байршил > Зөвшөөрөх гэж сонгоно уу.';
+              errorMessage = '📱 Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Safari → Байршил → "Зөвшөөрөх" гэж сонгоно уу. Эсвэл доорх дүүргээ сонгоно уу.';
             } else {
-              errorMessage = 'Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү.';
+              errorMessage = '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү. Эсвэл доорх дүүргээ сонгоно уу.';
             }
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Байршил олдохгүй байна. Интернет холболт эсвэл GPS-г шалгана уу.';
+            errorMessage = '📍 Байршил олдохгүй байна. GPS эсвэл интернет холболтоо шалгаад дахин оролдоно уу. Эсвэл доорх дүүргээ сонгоно уу.';
             break;
           case error.TIMEOUT:
             if (isSafari || isIOS) {
-              errorMessage = 'Safari дээр байршил хүлээх хугацаа дууссан.';
+              errorMessage = '⏱️ Safari дээр байршил хүлээх хугацаа дууссан. Доорх дүүргээ сонгоно уу.';
             } else {
-              errorMessage = 'Байршил хүлээх хугацаа дууссан.';
+              errorMessage = '⏱️ Байршил хүлээх хугацаа дууссан. Доорх дүүргээ сонгоно уу.';
             }
             break;
           default:
-            errorMessage = 'Байршил тодорхойлоход алдаа гарлаа.';
+            errorMessage = '❌ Байршил тодорхойлоход алдаа гарлаа. Доорх дүүргээ сонгоно уу.';
         }
         
         setLocationError(errorMessage);
-        handleLocationFallback(companyData.stores);
+        setLoading(false);
+        // Don't auto-navigate, let user select district first
       },
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false, // Use less accurate but faster positioning
         timeout: timeoutDuration,
-        maximumAge: 300000 // 5 minutes cache for better performance
+        maximumAge: 600000 // 10 minutes cache for better performance
       }
     );
   };
@@ -441,7 +442,7 @@ const MultiCompanyCareerPage = () => {
                     setLocationError('');
                   }
                 }}
-                className="district-select"
+                className="district-select mobile-select"
                 defaultValue=""
               >
                 <option value="">Дүүргээ сонгоно уу...</option>
@@ -1388,6 +1389,13 @@ const MultiCompanyCareerPage = () => {
           border: 1px solid rgba(59, 130, 246, 0.15);
         }
 
+        .district-selection.mobile-friendly {
+          margin: 1rem 0 2rem 0;
+          padding: 1.25rem;
+          background: rgba(59, 130, 246, 0.1);
+          border: 2px solid rgba(59, 130, 246, 0.2);
+        }
+
         .district-header {
           display: flex;
           align-items: center;
@@ -1397,32 +1405,85 @@ const MultiCompanyCareerPage = () => {
 
         .district-header h3 {
           margin: 0;
-          font-size: 1rem;
+          font-size: 1.1rem;
           font-weight: 600;
           color: white;
         }
 
-        .location-error-text {
-          color: rgba(239, 68, 68, 0.9);
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.2);
-          border-radius: 8px;
-          padding: 0.75rem;
+        .district-dropdown-container {
+          position: relative;
           margin-bottom: 1rem;
-          font-size: 0.875rem;
-          line-height: 1.4;
         }
 
         .district-select {
           width: 100%;
-          padding: 0.875rem;
-          background: rgba(59, 130, 246, 0.08) !important;
-          color: white !important;
-          border: 1px solid rgba(59, 130, 246, 0.15) !important;
+          padding: 1rem 3rem 1rem 1rem;
+          background: rgba(255, 255, 255, 0.95) !important;
+          color: #1f2937 !important;
+          border: 2px solid rgba(59, 130, 246, 0.3) !important;
           border-radius: 12px;
           font-size: 1rem;
+          font-weight: 500;
           outline: none;
           transition: all 0.2s ease;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          cursor: pointer;
+        }
+
+        .district-select.mobile-select {
+          padding: 1.2rem 3rem 1.2rem 1rem;
+          font-size: 1.1rem;
+          border-radius: 16px;
+          min-height: 56px;
+          background: rgba(255, 255, 255, 0.98) !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .district-select:focus {
+          background: rgba(255, 255, 255, 1) !important;
+          border-color: var(--brand-color) !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .district-select option {
+          background: white !important;
+          color: #1f2937 !important;
+          padding: 0.75rem;
+          font-size: 1rem;
+        }
+
+        .select-arrow {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          color: #6b7280;
+        }
+
+        .district-help-text {
+          margin: 0;
+          font-size: 0.875rem;
+          color: rgba(134, 239, 172, 0.9);
+          text-align: center;
+          background: rgba(34, 197, 94, 0.1);
+          padding: 0.75rem;
+          border-radius: 8px;
+          border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .location-error-text {
+          color: rgba(252, 165, 165, 0.95);
+          background: rgba(239, 68, 68, 0.15);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 12px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          text-align: center;
         }
 
         .district-select:focus {
@@ -1882,11 +1943,17 @@ const MultiCompanyCareerPage = () => {
 
         @media (max-width: 640px) {
           .page-content {
-            padding: 1rem 0.75rem;
+            padding: 1rem 1rem;
           }
           
           .hero-title {
-            font-size: 2rem;
+            font-size: 1.75rem;
+            line-height: 1.2;
+          }
+
+          .hero-subtitle {
+            font-size: 1rem;
+            margin-bottom: 1.25rem;
           }
           
           .modal-content {
@@ -1895,21 +1962,110 @@ const MultiCompanyCareerPage = () => {
           }
 
           .manual-location-button {
-            padding: 0.875rem;
-            gap: 0.375rem;
+            padding: 1rem;
+            gap: 0.5rem;
           }
 
           .location-tip {
-            padding: 0.625rem;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
           }
 
           .tip-text {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
           }
 
           .location-error-text {
+            font-size: 0.85rem;
+            padding: 0.875rem;
+          }
+
+          .district-selection.mobile-friendly {
+            margin: 0.75rem 0 1.5rem 0;
+            padding: 1rem;
+            border-radius: 20px;
+          }
+
+          .district-header h3 {
+            font-size: 1rem;
+          }
+
+          .district-select.mobile-select {
+            padding: 1.1rem 2.5rem 1.1rem 0.875rem;
+            font-size: 1rem;
+            min-height: 52px;
+            border-radius: 14px;
+          }
+
+          .district-help-text {
             font-size: 0.8rem;
             padding: 0.625rem;
+          }
+
+          .cta-button {
+            padding: 1.1rem 1.5rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+          }
+
+          .cta-button .icon-left {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+
+          .cta-button .icon-right {
+            width: 1.1rem;
+            height: 1.1rem;
+          }
+
+          .benefits-grid {
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .benefit-card {
+            padding: 1rem;
+          }
+
+          .benefit-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+          }
+
+          .benefit-title {
+            font-size: 0.9rem;
+          }
+
+          .benefit-subtitle {
+            font-size: 0.8rem;
+          }
+
+          /* Fix map container on mobile */
+          .map-container {
+            height: 250px;
+            margin-bottom: 1.5rem;
+          }
+
+          /* Store cards mobile optimization */
+          .store-card {
+            padding: 1rem;
+          }
+
+          .store-name {
+            font-size: 1rem;
+          }
+
+          .store-address {
+            font-size: 0.8rem;
+          }
+
+          .positions-count {
+            font-size: 0.8rem;
+          }
+
+          .urgent-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
           }
         }
       `}</style>
