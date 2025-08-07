@@ -901,13 +901,13 @@ const MultiCompanyCareerPage = () => {
                   </div>
                   
                   <button
-                    onClick={() => navigateTo('apply')}
-                    className="continue-button"
-                    style={{ background: companyConfig.brandColor }}
-                  >
-                    AI ярилцлага эхлэх
-                    <MessageSquare className="icon" />
-                  </button>
+  onClick={() => navigateTo('apply')}
+  className="continue-button standout-button"
+>
+  <MessageSquare className="icon" />
+  AI ярилцлага эхлэх
+  <Zap className="icon" />
+</button>
                 </div>
               )}
             </>
