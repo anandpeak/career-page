@@ -383,7 +383,7 @@ const MultiCompanyCareerPage = () => {
           </div>
           <div className="language-selector">
             {/* Demo: Company Switcher */}
-            <button
+            {/* <button
               onClick={() => {
                 const companies = Object.keys(COMPANY_CONFIGS);
                 const currentIndex = companies.indexOf(companyConfig.companyId);
@@ -395,7 +395,7 @@ const MultiCompanyCareerPage = () => {
               title="Demo: Switch Company"
             >
               🏢 {companyConfig.brandName}
-            </button>
+            </button> */}
             
             <button
               onClick={() => setShowLanguageMenu(!showLanguageMenu)}

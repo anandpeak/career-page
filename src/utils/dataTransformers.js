@@ -1,4 +1,4 @@
-// src/utils/dataTransformers.js - FIXED FOR YOUR API STRUCTURE
+// src/utils/dataTransformers.js - FINAL FIX
 
 export const transformCompanyData = (apiData) => {
   const companyConfig = apiData.companyConfig || {};
@@ -48,56 +48,79 @@ export const transformCompanyData = (apiData) => {
 
 export const transformStoreData = (apiBranches) => {
   if (!apiBranches || apiBranches.length === 0) {
-    console.log('No branches data to transform');
+    console.log('❌ No branches data to transform');
     return [];
   }
 
-  return apiBranches.map(branch => {
-    // Parse coordinates if they exist, otherwise use default Ulaanbaatar center
-    let lat = 47.9187;
-    let lng = 106.9177;
+  console.log('🔄 Transforming branches:', apiBranches.length, 'branches');
+  
+  const transformedStores = apiBranches.map(branch => {
+    console.log(`🏢 Processing branch: ${branch.branchName} (ID: ${branch.branchId})`);
+    console.log(`📍 Coordinates: ${branch.coordinates}`);
     
-    if (branch.coordinates && branch.coordinates !== null) {
+    // Parse coordinates if they exist
+    let lat = 47.9187; // Default Ulaanbaatar center
+    let lng = 106.9177;
+    let hasValidCoordinates = false;
+    
+    if (branch.coordinates && branch.coordinates !== null && branch.coordinates.trim() !== '') {
       try {
-        const [latStr, lngStr] = branch.coordinates.split(', ');
-        lat = parseFloat(latStr);
-        lng = parseFloat(lngStr);
+        const coordParts = branch.coordinates.split(', ');
+        if (coordParts.length === 2) {
+          const parsedLat = parseFloat(coordParts[0]);
+          const parsedLng = parseFloat(coordParts[1]);
+          
+          if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+            lat = parsedLat;
+            lng = parsedLng;
+            hasValidCoordinates = true;
+            console.log(`✅ Valid coordinates found: ${lat}, ${lng}`);
+          }
+        }
       } catch (error) {
-        console.warn(`Failed to parse coordinates for branch ${branch.branchId}:`, branch.coordinates);
+        console.warn(`⚠️ Failed to parse coordinates for branch ${branch.branchId}:`, branch.coordinates, error);
       }
+    } else {
+      console.log(`📍 No coordinates for branch: ${branch.branchName}`);
     }
 
     // Transform jobs to positions
-    const positions = branch.jobs ? branch.jobs.map((job, index) => ({
-      id: `pos_${branch.branchId}_${index}`,
-      title: job.jobName || 'Position',
-      urgent: Math.random() > 0.7, // Random urgent flag since not in API
-      salaryRange: job.salary || 'Цалин: Харилцан тохиролцоно',
-      description: job.description || '',
-      requirements: job.requirements || [],
-      benefits: job.benefits || [],
-      shiftType: job.shiftType || 'full-time',
-      employmentType: job.employmentType || 'permanent',
-      experienceRequired: job.experienceRequired || false,
-      openingsCount: job.openingsCount || 1
-    })) : [];
+    const positions = branch.jobs ? 
+      branch.jobs.map((job, index) => ({
+        id: job.jobId || `pos_${branch.branchId}_${index}`,
+        title: job.jobName || 'Position',
+        urgent: index === 0, // First job is urgent for demo
+        salaryRange: 'Цалин тохиролцоно',
+        description: `${job.jobName} ажлын байрны дэлгэрэнгүй мэдээлэл`,
+        requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар']
+      })) : [];
 
-    return {
+    const transformedStore = {
       id: branch.branchId,
       name: branch.branchName || `Салбар ${branch.branchId}`,
       lat: lat,
       lng: lng,
       address: branch.branchName || 'Address not provided',
+      positions: positions,
+      hasValidCoordinates: hasValidCoordinates,
+      // Add these for compatibility
       managerId: `mgr_${branch.branchId}`,
-      district: '',
-      phone: branch.phone || '',
-      openingHours: branch.hours || '09:00-18:00',
-      positions: positions
+      district: hasValidCoordinates ? '' : 'Remote',
+      phone: '',
+      openingHours: '09:00-18:00'
     };
+
+    console.log(`✅ Transformed store:`, transformedStore.name, `- ${transformedStore.positions.length} positions, coordinates: ${hasValidCoordinates}`);
+    return transformedStore;
   });
+
+  console.log(`✅ Transformation complete: ${transformedStores.length} stores total`);
+  console.log(`📍 Stores with coordinates: ${transformedStores.filter(s => s.hasValidCoordinates).length}`);
+  console.log(`🏢 Store names:`, transformedStores.map(s => s.name));
+
+  return transformedStores;
 };
 
-// This function is not needed anymore since we get everything in one call
 export const transformPositionData = (apiPositions) => {
   return apiPositions.map(position => ({
     id: position.id || position.position_id,

@@ -259,7 +259,7 @@ const MultiCompanyCareerPage = () => {
   const [language, setLanguage] = useState('mn');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
-  // Fix default marker icon for Leaflet - MOVED TO TOP
+  // Fix default marker icon for Leaflet
   useEffect(() => {
     delete L.Icon.Default.prototype._getIconUrl;
     L.Icon.Default.mergeOptions({
@@ -269,7 +269,7 @@ const MultiCompanyCareerPage = () => {
     });
   }, []);
 
-  // Use API company data if available, otherwise use existing logic - MOVED TO TOP
+  // Use API company data if available, otherwise use existing logic
   useEffect(() => {
     if (companyData) {
       console.log('✅ Setting company config from API:', companyData);
@@ -281,20 +281,28 @@ const MultiCompanyCareerPage = () => {
     }
   }, [companyData, dataLoading, dataError]);
 
-  // Load company data - now uses API data when available - MOVED TO TOP
+  // Load company data - FIXED VERSION
   useEffect(() => {
-    console.log('🔄 Store data effect triggered - apiStores:', apiStores.length, 'companyConfig:', companyConfig);
+    console.log('🔄 Store data effect triggered');
+    console.log('- apiStores.length:', apiStores?.length || 0);
+    console.log('- dataLoading:', dataLoading);
+    console.log('- dataError:', dataError);
+    console.log('- companyData available:', !!companyData);
     
+    // PRIORITY: Use API data first if available
     if (apiStores && apiStores.length > 0) {
-      // Use API data if available
-      setStores(apiStores);
-      console.log('✅ Using API data for stores:', apiStores.length, 'stores loaded');
-      console.log('📋 Store names:', apiStores.map(s => s.name));
-    } else if (!dataLoading && companyConfig && companyConfig.companyId) {
-      // Fallback to mock data only if not loading and we have a company config
-      const fallbackData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
-      setStores(fallbackData.stores);
-      console.log('🔄 Using fallback mock data for company:', companyConfig.companyId);
+      console.log('✅ Using API data - Setting stores:', apiStores.length);
+      console.log('📋 API Store names:', apiStores.map(s => s.name));
+      setStores([...apiStores]); // Force new array reference
+      console.log('✅ Stores set successfully');
+    } else if (!dataLoading && !dataError) {
+      console.log('⚠️ No API stores available, checking fallback...');
+      // Only use fallback as last resort
+      const fallbackData = MOCK_COMPANY_DATA['gs25'];
+      setStores([...fallbackData.stores]);
+      console.log('🔄 Using fallback mock data');
+    } else {
+      console.log('⏳ Still loading or has error, waiting...');
     }
     
     // Reset selections when data changes
@@ -302,7 +310,13 @@ const MultiCompanyCareerPage = () => {
     setSelectedPositions([]);
     setCurrentStore(null);
     setShowPositionModal(false);
-  }, [companyConfig, apiStores, dataLoading]);
+  }, [apiStores, dataLoading, dataError, companyData]);
+
+  // Debug useEffect to track store state changes
+  useEffect(() => {
+    console.log('🐛 CURRENT STORES STATE:', stores.length, 'stores');
+    console.log('🐛 Current store names:', stores.map(s => s.name));
+  }, [stores]);
 
   // Show loading state while API data is being fetched
   if (dataLoading) {
@@ -363,9 +377,6 @@ const MultiCompanyCareerPage = () => {
   const getUserLocation = async () => {
     setLoading(true);
     setLocationError('');
-    
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
-    setStores(companyData.stores);
     
     // Check if geolocation is supported
     if (!navigator.geolocation) {
@@ -428,20 +439,8 @@ const MultiCompanyCareerPage = () => {
   
   // Manual location selection for Safari/iOS users
   const selectManualLocation = () => {
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
-    setStores(companyData.stores);
     // Default to Ulaanbaatar center
     setUserLocation({ lat: 47.9187, lng: 106.9177 });
-    navigateTo('stores');
-  };
-
-  // Fallback when location fails
-  const handleLocationFallback = (storeData) => {
-    setLoading(false);
-    // Default to Ulaanbaatar center
-    const defaultLat = 47.9187;
-    const defaultLng = 106.9177;
-    setUserLocation({ lat: defaultLat, lng: defaultLng });
     navigateTo('stores');
   };
 
@@ -571,21 +570,6 @@ const MultiCompanyCareerPage = () => {
             </span>
           </div>
           <div className="language-selector">
-            {/* Demo: Company Switcher */}
-            <button
-              onClick={() => {
-                const companies = Object.keys(COMPANY_CONFIGS);
-                const currentIndex = companies.indexOf(companyConfig.companyId);
-                const nextIndex = (currentIndex + 1) % companies.length;
-                const nextCompany = companies[nextIndex];
-                setCompanyConfig(COMPANY_CONFIGS[nextCompany]);
-              }}
-              className="company-switcher"
-              title="Demo: Switch Company"
-            >
-              🏢 {companyConfig.brandName}
-            </button>
-            
             <button
               onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               className="language-button"
@@ -738,194 +722,194 @@ const MultiCompanyCareerPage = () => {
             <>
               {/* Interactive Leaflet Map */}
               <div className="map-container">
-            {userLocation ? (
-              <MapContainer
-                center={[userLocation.lat, userLocation.lng]}
-                zoom={13}
-                scrollWheelZoom={true}
-                style={{ 
-                  height: '100%', 
-                  width: '100%', 
-                  borderRadius: '16px',
-                  zIndex: 1
-                }}
-                attributionControl={true}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-                />
-                
-                {/* User location marker */}
-                <Marker position={[userLocation.lat, userLocation.lng]}>
-                  <Popup>
-                    <div style={{ textAlign: 'center', color: '#333' }}>
-                      <strong>📍 Таны байршил</strong>
-                    </div>
-                  </Popup>
-                </Marker>
-                
-                {/* Store markers */}
-                {stores.map(store => {
-                  const hasUrgentPositions = store.positions.some(p => p.urgent);
-                  const markerIcon = L.icon({
-                    iconUrl: hasUrgentPositions
-                      ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
-                      : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                  });
-
-                  return (
-                    <Marker
-                      key={store.id}
-                      position={[store.lat, store.lng]}
-                      icon={markerIcon}
-                      eventHandlers={{
-                        click: () => handleStoreClick(store)
-                      }}
-                    >
+                {userLocation ? (
+                  <MapContainer
+                    center={[userLocation.lat, userLocation.lng]}
+                    zoom={13}
+                    scrollWheelZoom={true}
+                    style={{ 
+                      height: '100%', 
+                      width: '100%', 
+                      borderRadius: '16px',
+                      zIndex: 1
+                    }}
+                    attributionControl={true}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+                    />
+                    
+                    {/* User location marker */}
+                    <Marker position={[userLocation.lat, userLocation.lng]}>
                       <Popup>
-                        <div style={{ color: '#333', minWidth: '200px' }}>
-                          <strong style={{ fontSize: '16px', color: companyConfig.brandColor }}>
-                            {store.name}
-                          </strong>
-                          <br />
-                          <span style={{ color: '#666', fontSize: '14px' }}>
-                            {store.address}
-                          </span>
-                          <br />
-                          <div style={{ marginTop: '8px', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px' }}>
-                            <strong style={{ color: companyConfig.brandColor }}>
-                              {store.positions.length} ажлын байр
-                            </strong>
-                            {hasUrgentPositions && (
-                              <span style={{ 
-                                marginLeft: '8px', 
-                                color: '#dc2626',
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                              }}>
-                                🔥 Яаралтай
-                              </span>
-                            )}
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleStoreClick(store);
-                            }}
-                            style={{
-                              marginTop: '8px',
-                              width: '100%',
-                              padding: '6px 12px',
-                              background: companyConfig.brandColor,
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              fontWeight: '500'
-                            }}
-                          >
-                            Ажлын байр харах
-                          </button>
+                        <div style={{ textAlign: 'center', color: '#333' }}>
+                          <strong>📍 Таны байршил</strong>
                         </div>
                       </Popup>
                     </Marker>
-                  );
-                })}
-              </MapContainer>
-            ) : (
-              <div className="map-placeholder">
-                {loading ? (
-                  <>
-                    <div className="spinner"></div>
-                    <p>Таны байршлыг хайж байна...</p>
-                  </>
+                    
+                    {/* Store markers - only show stores with valid coordinates */}
+                    {stores.filter(store => store.hasValidCoordinates).map(store => {
+                      const hasUrgentPositions = store.positions.some(p => p.urgent);
+                      const markerIcon = L.icon({
+                        iconUrl: hasUrgentPositions
+                          ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
+                          : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                      });
+
+                      return (
+                        <Marker
+                          key={store.id}
+                          position={[store.lat, store.lng]}
+                          icon={markerIcon}
+                          eventHandlers={{
+                            click: () => handleStoreClick(store)
+                          }}
+                        >
+                          <Popup>
+                            <div style={{ color: '#333', minWidth: '200px' }}>
+                              <strong style={{ fontSize: '16px', color: companyConfig.brandColor }}>
+                                {store.name}
+                              </strong>
+                              <br />
+                              <span style={{ color: '#666', fontSize: '14px' }}>
+                                {store.address}
+                              </span>
+                              <br />
+                              <div style={{ marginTop: '8px', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px' }}>
+                                <strong style={{ color: companyConfig.brandColor }}>
+                                  {store.positions.length} ажлын байр
+                                </strong>
+                                {hasUrgentPositions && (
+                                  <span style={{ 
+                                    marginLeft: '8px', 
+                                    color: '#dc2626',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    🔥 Яаралтай
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleStoreClick(store);
+                                }}
+                                style={{
+                                  marginTop: '8px',
+                                  width: '100%',
+                                  padding: '6px 12px',
+                                  background: companyConfig.brandColor,
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '14px',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                Ажлын байр харах
+                              </button>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+                  </MapContainer>
                 ) : (
-                  <>
-                    <Map className="map-icon" />
-                    <p>Байршил ачаалж байна...</p>
-                    {locationError && (
-                      <p className="map-error">{locationError}</p>
+                  <div className="map-placeholder">
+                    {loading ? (
+                      <>
+                        <div className="spinner"></div>
+                        <p>Таны байршлыг хайж байна...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Map className="map-icon" />
+                        <p>Байршил ачаалж байна...</p>
+                        {locationError && (
+                          <p className="map-error">{locationError}</p>
+                        )}
+                      </>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Store Cards with Position Preview */}
-          <div className="stores-list">
-            {stores.map((store) => (
-              <div
-                key={store.id}
-                onClick={() => handleStoreClick(store)}
-                className={`store-card ${selectedStores.find(s => s.id === store.id) ? 'selected' : ''}`}
-              >
-                <div className="store-header">
-                  <div className="store-info">
-                    <h3 className="store-name">{store.name}</h3>
-                    <p className="store-address">{store.address}</p>
-                    <div className="positions-preview">
-                      <span className="positions-count">
-                        {store.positions.length} ажлын байр
-                      </span>
-                      {store.positions.some(p => p.urgent) && (
-                        <span className="urgent-badge">🔥 Яаралтай</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="store-action">
-                    <Building2 className="icon" style={{ color: companyConfig.brandColor }} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Selected Position Summary */}
-          {selectedPositions.length > 0 && (
-            <div className="selection-summary">
-              <h3 className="summary-title">Сонгосон ажлын байр</h3>
-              <div className="selected-positions">
-                {selectedPositions.map((sp) => (
-                  <div key={`${sp.storeId}-${sp.positionId}`} className="selected-position">
-                    <div className="position-info">
-                      <div className="position-title">
-                        {sp.positionTitle}
-                        {sp.urgent && <span className="urgent-indicator"> 🔥</span>}
+              {/* Store Cards with Position Preview */}
+              <div className="stores-list">
+                {stores.map((store) => (
+                  <div
+                    key={store.id}
+                    onClick={() => handleStoreClick(store)}
+                    className={`store-card ${selectedStores.find(s => s.id === store.id) ? 'selected' : ''}`}
+                  >
+                    <div className="store-header">
+                      <div className="store-info">
+                        <h3 className="store-name">{store.name}</h3>
+                        <p className="store-address">{store.address}</p>
+                        <div className="positions-preview">
+                          <span className="positions-count">
+                            {store.positions.length} ажлын байр
+                          </span>
+                          {store.positions.some(p => p.urgent) && (
+                            <span className="urgent-badge">🔥 Яаралтай</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="position-store">{sp.storeName}</div>
-                      <div className="position-salary">{sp.salaryRange}</div>
+                      <div className="store-action">
+                        <Building2 className="icon" style={{ color: companyConfig.brandColor }} />
+                      </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        setSelectedPositions([]);
-                        setSelectedStores([]);
-                      }}
-                      className="remove-position"
-                    >
-                      <X className="icon-sm" />
-                    </button>
                   </div>
                 ))}
               </div>
-              
-              <button
-                onClick={() => navigateTo('apply')}
-                className="continue-button"
-                style={{ background: companyConfig.brandColor }}
-              >
-                AI ярилцлага эхлэх
-                <MessageSquare className="icon" />
-              </button>
-            </div>
-          )}
+
+              {/* Selected Position Summary */}
+              {selectedPositions.length > 0 && (
+                <div className="selection-summary">
+                  <h3 className="summary-title">Сонгосон ажлын байр</h3>
+                  <div className="selected-positions">
+                    {selectedPositions.map((sp) => (
+                      <div key={`${sp.storeId}-${sp.positionId}`} className="selected-position">
+                        <div className="position-info">
+                          <div className="position-title">
+                            {sp.positionTitle}
+                            {sp.urgent && <span className="urgent-indicator"> 🔥</span>}
+                          </div>
+                          <div className="position-store">{sp.storeName}</div>
+                          <div className="position-salary">{sp.salaryRange}</div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedPositions([]);
+                            setSelectedStores([]);
+                          }}
+                          className="remove-position"
+                        >
+                          <X className="icon-sm" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={() => navigateTo('apply')}
+                    className="continue-button"
+                    style={{ background: companyConfig.brandColor }}
+                  >
+                    AI ярилцлага эхлэх
+                    <MessageSquare className="icon" />
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1146,26 +1130,6 @@ const MultiCompanyCareerPage = () => {
           padding: 0.125rem 0.5rem;
           border-radius: 12px;
           font-size: 0.875rem;
-        }
-
-        .company-switcher {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: rgba(34, 197, 94, 0.1);
-          backdrop-filter: blur(10px);
-          padding: 0.5rem 0.875rem;
-          border-radius: 12px;
-          border: 1px solid rgba(34, 197, 94, 0.2);
-          color: rgba(134, 239, 172, 0.9);
-          font-size: 0.875rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .company-switcher:hover {
-          background: rgba(34, 197, 94, 0.15);
-          border-color: rgba(34, 197, 94, 0.3);
         }
 
         .language-button {
@@ -2062,6 +2026,7 @@ const MultiCompanyCareerPage = () => {
       `}</style>
     </div>
   );
+  
 };
 
 export default MultiCompanyCareerPage;
