@@ -3,6 +3,77 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart, ArrowLeft, X, Map, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import { CareerPageAPI } from './services/api';
+import { transformCompanyData, transformStoreData, transformPositionData } from './utils/dataTransformers';
+
+// Custom hook for API data - UPDATED FOR YOUR API
+const useCompanyData = () => {
+  const [api] = useState(() => new CareerPageAPI());
+  const [companyData, setCompanyData] = useState(null);
+  const [apiStores, setApiStores] = useState([]);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [dataError, setDataError] = useState(null);
+
+  const getSubdomainFromUrl = () => {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return '1place'; // Default for testing
+    }
+    const parts = hostname.split('.');
+    if (parts.length >= 3) {
+      return parts[0];
+    }
+    return '1place';
+  };
+
+  const loadCompanyData = async () => {
+    const suburl = getSubdomainFromUrl();
+    setDataLoading(true);
+    setDataError(null);
+    
+    try {
+      // Get everything in one API call
+      const allData = await api.getCompanyBySuburl(suburl);
+      console.log('✅ Raw API data received:', allData);
+      
+      // Transform company config
+      const transformedCompany = transformCompanyData(allData);
+      console.log('🏢 Transformed company:', transformedCompany);
+      setCompanyData(transformedCompany);
+      
+      // Transform branches (stores) - now includes jobs (positions) already
+      const transformedStores = transformStoreData(allData.branches || []);
+      console.log('🏬 Transformed stores:', transformedStores);
+      setApiStores(transformedStores);
+      
+      console.log('✅ API data transformation complete:', { 
+        companyName: transformedCompany.brandName,
+        storeCount: transformedStores.length,
+        storeNames: transformedStores.map(s => s.name)
+      });
+      
+    } catch (error) {
+      setDataError(error.message);
+      console.log('❌ API failed, will use fallback data:', error.message);
+      // Don't set fallback data here, let the component use existing mock data
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCompanyData();
+  }, []);
+
+  return {
+    companyData,
+    apiStores,
+    dataLoading,
+    dataError,
+    reloadCompanyData: loadCompanyData,
+    api
+  };
+};
 
 // Company Configuration System
 const COMPANY_CONFIGS = {
@@ -164,6 +235,9 @@ const LANGUAGES = [
 ];
 
 const MultiCompanyCareerPage = () => {
+  // Add API hook at the very top
+  const { companyData, apiStores, dataLoading, dataError, api } = useCompanyData();
+
   // Get company config based on subdomain or default to gs25
   const getCompanyFromSubdomain = () => {
     const hostname = window.location.hostname;
@@ -185,7 +259,7 @@ const MultiCompanyCareerPage = () => {
   const [language, setLanguage] = useState('mn');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
-  // Fix default marker icon for Leaflet
+  // Fix default marker icon for Leaflet - MOVED TO TOP
   useEffect(() => {
     delete L.Icon.Default.prototype._getIconUrl;
     L.Icon.Default.mergeOptions({
@@ -194,6 +268,80 @@ const MultiCompanyCareerPage = () => {
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     });
   }, []);
+
+  // Use API company data if available, otherwise use existing logic - MOVED TO TOP
+  useEffect(() => {
+    if (companyData) {
+      console.log('✅ Setting company config from API:', companyData);
+      setCompanyConfig(companyData);
+    } else if (!dataLoading && !dataError) {
+      // Only use fallback if we're not loading and there's no error yet
+      const detected = getCompanyFromSubdomain();
+      setCompanyConfig(detected);
+    }
+  }, [companyData, dataLoading, dataError]);
+
+  // Load company data - now uses API data when available - MOVED TO TOP
+  useEffect(() => {
+    console.log('🔄 Store data effect triggered - apiStores:', apiStores.length, 'companyConfig:', companyConfig);
+    
+    if (apiStores && apiStores.length > 0) {
+      // Use API data if available
+      setStores(apiStores);
+      console.log('✅ Using API data for stores:', apiStores.length, 'stores loaded');
+      console.log('📋 Store names:', apiStores.map(s => s.name));
+    } else if (!dataLoading && companyConfig && companyConfig.companyId) {
+      // Fallback to mock data only if not loading and we have a company config
+      const fallbackData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
+      setStores(fallbackData.stores);
+      console.log('🔄 Using fallback mock data for company:', companyConfig.companyId);
+    }
+    
+    // Reset selections when data changes
+    setSelectedStores([]);
+    setSelectedPositions([]);
+    setCurrentStore(null);
+    setShowPositionModal(false);
+  }, [companyConfig, apiStores, dataLoading]);
+
+  // Show loading state while API data is being fetched
+  if (dataLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0a1929 0%, #1e3a8a 25%, #1e40af 50%, #2563eb 75%, #3b82f6 100%)',
+        color: 'white',
+        fontSize: '1.2rem'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '50px', 
+            height: '50px', 
+            border: '3px solid rgba(255,255,255,0.3)',
+            borderTop: '3px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          Loading company data...
+          {dataError && <div style={{ color: '#fca5a5', marginTop: '1rem' }}>
+            API Error: {dataError}<br/>
+            <small>Will use fallback data</small>
+          </div>}
+        </div>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}} />
+      </div>
+    );
+  }
 
   // Navigation functions
   const navigateTo = (newStep) => {
@@ -210,17 +358,6 @@ const MultiCompanyCareerPage = () => {
       setStep(previousStep);
     }
   };
-
-  // Load company data
-  useEffect(() => {
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
-    setStores(companyData.stores);
-    // Reset selections when switching companies
-    setSelectedStores([]);
-    setSelectedPositions([]);
-    setCurrentStore(null);
-    setShowPositionModal(false);
-  }, [companyConfig]);
 
   // Enhanced location handling for Safari/iOS
   const getUserLocation = async () => {
@@ -349,6 +486,34 @@ const MultiCompanyCareerPage = () => {
     setSelectedStores([]);
   };
 
+  // Add API application submission function
+  const handleApiApplicationSubmit = async (formData) => {
+    if (!api || !selectedPositions.length) return false;
+    
+    try {
+      setLoading(true);
+      
+      const applicationData = {
+        company_id: companyConfig.companyId,
+        store_id: selectedPositions[0]?.storeId,
+        position_id: selectedPositions[0]?.positionId,
+        applicant_data: formData,
+        source: 'career_page',
+        language: language,
+        applied_at: new Date().toISOString()
+      };
+      
+      const result = await api.submitApplication(applicationData);
+      console.log('✅ Application submitted via API:', result);
+      return true;
+    } catch (error) {
+      console.error('❌ API application submission failed:', error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getTranslation = (key) => {
     return companyConfig.translations[language][key] || key;
   };
@@ -363,6 +528,29 @@ const MultiCompanyCareerPage = () => {
 
   return (
     <div className="app-container" style={dynamicStyles}>
+      {/* Debug Info - Remove this after fixing */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 9999,
+          maxWidth: '300px'
+        }}>
+          <div>🏢 Company: {companyConfig?.brandName || 'Loading...'}</div>
+          <div>🏬 API Stores: {apiStores.length}</div>
+          <div>📋 Current Stores: {stores.length}</div>
+          <div>📍 Store Names: {stores.map(s => s.name).join(', ')}</div>
+          <div>🔄 Data Loading: {dataLoading ? 'Yes' : 'No'}</div>
+          <div>❌ API Error: {dataError || 'None'}</div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="header">
         <div className="header-content">
@@ -373,7 +561,7 @@ const MultiCompanyCareerPage = () => {
               </button>
             )}
             <div className="logo" style={{ background: companyConfig.brandColor }}>
-              {companyConfig.logo}
+              {companyConfig.logo || companyConfig.brandName || 'Company'}
             </div>
             <span className="header-title">
               {getTranslation('title')}
@@ -383,39 +571,6 @@ const MultiCompanyCareerPage = () => {
             </span>
           </div>
           <div className="language-selector">
-            {/* Compact District Selection - shown when location fails */}
-            {/* {(step === 'landing' && (locationError || !userLocation) && !loading) && (
-              <div className="compact-district-selection">
-                <div className="compact-dropdown-container">
-                  <select
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const [lat, lng] = e.target.value.split(',').map(Number);
-                        setUserLocation({ lat, lng });
-                        setLocationError('');
-                        setTimeout(() => {
-                          navigateTo('stores');
-                        }, 500);
-                      }
-                    }}
-                    className="compact-district-select"
-                    defaultValue=""
-                  >
-                    <option value="">📍 Дүүрэг сонгох</option>
-                    <option value="47.9250,106.9150">Баянгол</option>
-                    <option value="47.9356,106.9894">Баянзүрх</option>
-                    <option value="47.9267,106.9083">Чингэлтэй</option>
-                    <option value="47.8864,106.9057">Хан-Уул</option>
-                    <option value="47.9187,106.9177">Сүхбаатар</option>
-                    <option value="47.8994,106.7892">Сонгинохайрхан</option>
-                  </select>
-                </div>
-                {locationError && (
-                  <div className="compact-error-message">{locationError}</div>
-                )}
-              </div>
-            )} */}
-            
             {/* Demo: Company Switcher */}
             <button
               onClick={() => {
@@ -456,38 +611,6 @@ const MultiCompanyCareerPage = () => {
               </div>
             )}
           </div>
-
-          {/* Manual Location Selection (if location fails) */}
-          {/* {(locationError || !userLocation) && (
-            <div className="district-selection">
-              <div className="district-header">
-                <MapPin className="icon-sm" style={{ color: companyConfig.brandColor }} />
-                <h3>Дүүрэг сонгох</h3>
-              </div>
-              {locationError && (
-                <p className="location-error-text">{locationError}</p>
-              )}
-              <select
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const [lat, lng] = e.target.value.split(',').map(Number);
-                    setUserLocation({ lat, lng });
-                    setLocationError('');
-                  }
-                }}
-                className="district-select mobile-select"
-                defaultValue=""
-              >
-                <option value="">Дүүргээ сонгоно уу...</option>
-                <option value="47.9250,106.9150">Баянгол дүүрэг</option>
-                <option value="47.9356,106.9894">Баянзүрх дүүрэг</option>
-                <option value="47.9267,106.9083">Чингэлтэй дүүрэг</option>
-                <option value="47.8864,106.9057">Хан-Уул дүүрэг</option>
-                <option value="47.9187,106.9177">Сүхбаатар дүүрэг</option>
-                <option value="47.8994,106.7892">Сонгинохайрхан дүүрэг</option>
-              </select>
-            </div>
-          )} */}
         </div>
       </div>
 
@@ -590,8 +713,31 @@ const MultiCompanyCareerPage = () => {
             <p className="section-subtitle">{getTranslation('selectStores')}</p>
           </div>
 
-          {/* Interactive Leaflet Map */}
-          <div className="map-container">
+          {/* Show loading if we don't have stores data yet */}
+          {stores.length === 0 && (apiStores.length === 0 || dataLoading) ? (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '200px',
+              color: 'rgba(226, 232, 240, 0.8)'
+            }}>
+              <div style={{ 
+                width: '40px', 
+                height: '40px', 
+                border: '3px solid rgba(255,255,255,0.3)',
+                borderTop: '3px solid white',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                marginBottom: '1rem'
+              }}></div>
+              <p>Дэлгүүрийн мэдээлэл ачааллаж байна...</p>
+            </div>
+          ) : (
+            <>
+              {/* Interactive Leaflet Map */}
+              <div className="map-container">
             {userLocation ? (
               <MapContainer
                 center={[userLocation.lat, userLocation.lng]}
@@ -780,6 +926,8 @@ const MultiCompanyCareerPage = () => {
               </button>
             </div>
           )}
+            </>
+          )}
         </div>
       )}
 
@@ -833,8 +981,8 @@ const MultiCompanyCareerPage = () => {
 
           {/* Start Interview Button */}
           <button
-            onClick={() => {
-              // Simulate starting AI interview
+            onClick={async () => {
+              // Try API submission first, fallback to mock
               const sessionData = {
                 companyId: companyConfig.companyId,
                 storeId: selectedPositions[0]?.storeId,
@@ -846,14 +994,25 @@ const MultiCompanyCareerPage = () => {
                 source: 'career_page'
               };
               
-              // In real implementation, redirect to AI interview
-              console.log('Starting AI interview with:', sessionData);
-              alert(`AI ярилцлага эхэлж байна!\n\nАжлын байр: ${selectedPositions[0]?.positionTitle}\nДэлгүүр: ${selectedPositions[0]?.storeName}`);
+              // Try API submission
+              const apiSuccess = await handleApiApplicationSubmit({
+                interview_type: 'ai',
+                session_data: sessionData
+              });
+              
+              if (apiSuccess) {
+                console.log('✅ Application submitted via API');
+                alert(`AI ярилцлага эхэлж байна! (API арқылы илгээгдсэн)\n\nАжлын байр: ${selectedPositions[0]?.positionTitle}\nДэлгүүр: ${selectedPositions[0]?.storeName}`);
+              } else {
+                console.log('🔄 Using fallback submission method');
+                alert(`AI ярилцлага эхэлж байна! (Local fallback)\n\nАжлын байр: ${selectedPositions[0]?.positionTitle}\nДэлгүүр: ${selectedPositions[0]?.storeName}`);
+              }
             }}
             className="ai-interview-button standout-button"
+            disabled={loading}
           >
             <MessageSquare className="icon" />
-            AI ярилцлага эхлэх
+            {loading ? 'Илгээж байна...' : 'AI ярилцлага эхлэх'}
             <Zap className="icon" />
           </button>
 
@@ -974,6 +1133,21 @@ const MultiCompanyCareerPage = () => {
           letter-spacing: -0.3px;
         }
 
+        .header-title {
+          color: white;
+          font-weight: 600;
+          font-size: 1.125rem;
+        }
+
+        .selection-count {
+          margin-left: 0.5rem;
+          background: rgba(34, 197, 94, 0.2);
+          color: rgba(134, 239, 172, 0.9);
+          padding: 0.125rem 0.5rem;
+          border-radius: 12px;
+          font-size: 0.875rem;
+        }
+
         .company-switcher {
           display: flex;
           align-items: center;
@@ -1007,6 +1181,13 @@ const MultiCompanyCareerPage = () => {
           font-size: 0.875rem;
           cursor: pointer;
           transition: all 0.2s ease;
+        }
+
+        .language-selector {
+          position: relative;
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
         }
 
         .language-menu {
@@ -1236,7 +1417,7 @@ const MultiCompanyCareerPage = () => {
           animation: gentle-pulse 3s ease-in-out infinite;
         }
 
-        .standout-button:hover {
+        .standout-button:hover:not(:disabled) {
           background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
           box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4) !important;
           transform: translateY(-2px) !important;
@@ -1276,16 +1457,6 @@ const MultiCompanyCareerPage = () => {
           font-size: 0.75rem;
           color: rgba(134, 239, 172, 0.9);
           line-height: 1.4;
-        }
-
-        .cta-button:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .cta-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
         }
 
         .benefits-grid {
@@ -1361,7 +1532,6 @@ const MultiCompanyCareerPage = () => {
           position: relative;
         }
 
-        /* Leaflet map styling */
         .map-container .leaflet-container {
           height: 100% !important;
           width: 100% !important;
@@ -1399,229 +1569,6 @@ const MultiCompanyCareerPage = () => {
           border-radius: 8px;
           margin-top: 0.5rem;
           border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .district-selection {
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          margin-bottom: 2rem;
-          border: 1px solid rgba(59, 130, 246, 0.15);
-        }
-
-        .district-selection.mobile-friendly {
-          margin: 1rem 0 2rem 0;
-          padding: 1.25rem;
-          background: rgba(59, 130, 246, 0.1);
-          border: 2px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .district-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .district-header h3 {
-          margin: 0;
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: white;
-        }
-
-        .district-dropdown-container {
-          position: relative;
-          margin-bottom: 1rem;
-        }
-
-        .district-select {
-          width: 100%;
-          padding: 1rem 3rem 1rem 1rem;
-          background: rgba(255, 255, 255, 0.95) !important;
-          color: #1f2937 !important;
-          border: 2px solid rgba(59, 130, 246, 0.3) !important;
-          border-radius: 12px;
-          font-size: 1rem;
-          font-weight: 500;
-          outline: none;
-          transition: all 0.2s ease;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          cursor: pointer;
-        }
-
-        .district-select.mobile-select {
-          padding: 1rem 2.5rem 1rem 0.875rem;
-          font-size: 0.9rem;
-          border-radius: 16px;
-          min-height: 48px;
-          background: rgba(255, 255, 255, 0.98) !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .district-select:focus {
-          background: rgba(255, 255, 255, 1) !important;
-          border-color: var(--brand-color) !important;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .district-select option {
-          background: white !important;
-          color: #1f2937 !important;
-          padding: 0.75rem;
-          font-size: 1rem;
-        }
-
-        .select-arrow {
-          position: absolute;
-          right: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          pointer-events: none;
-          color: #6b7280;
-        }
-
-        .select-arrow svg {
-          width: 10px;
-          height: 6px;
-        }
-
-        .district-help-text {
-          margin: 0;
-          font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
-          text-align: center;
-          background: rgba(34, 197, 94, 0.1);
-          padding: 0.75rem;
-          border-radius: 8px;
-          border: 1px solid rgba(34, 197, 94, 0.2);
-        }
-
-        .location-error-text {
-          color: rgba(252, 165, 165, 0.95);
-          background: rgba(239, 68, 68, 0.15);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          border-radius: 12px;
-          padding: 1rem;
-          margin-bottom: 1rem;
-          font-size: 0.9rem;
-          line-height: 1.5;
-          text-align: center;
-        }
-
-        .district-selection.mobile-friendly {
-          margin: 1rem 0 2rem 0;
-          padding: 1.25rem;
-          background: rgba(59, 130, 246, 0.1);
-          border: 2px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .district-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .district-header h3 {
-          margin: 0;
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: white;
-        }
-
-        .district-dropdown-container {
-          position: relative;
-          margin-bottom: 1rem;
-        }
-
-        .district-select {
-          width: 100%;
-          padding: 1rem 3rem 1rem 1rem;
-          background: rgba(255, 255, 255, 0.95) !important;
-          color: #1f2937 !important;
-          border: 2px solid rgba(59, 130, 246, 0.3) !important;
-          border-radius: 12px;
-          font-size: 1rem;
-          font-weight: 500;
-          outline: none;
-          transition: all 0.2s ease;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          cursor: pointer;
-        }
-
-        .district-select.mobile-select {
-          padding: 1rem 2.5rem 1rem 0.875rem;
-          font-size: 0.9rem;
-          border-radius: 16px;
-          min-height: 48px;
-          background: rgba(255, 255, 255, 0.98) !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .district-select:focus {
-          background: rgba(255, 255, 255, 1) !important;
-          border-color: var(--brand-color) !important;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .district-select option {
-          background: white !important;
-          color: #1f2937 !important;
-          padding: 0.75rem;
-          font-size: 1rem;
-        }
-
-        .select-arrow {
-          position: absolute;
-          right: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          pointer-events: none;
-          color: #6b7280;
-        }
-
-        .select-arrow svg {
-          width: 10px;
-          height: 6px;
-        }
-
-        .district-help-text {
-          margin: 0;
-          font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
-          text-align: center;
-          background: rgba(34, 197, 94, 0.1);
-          padding: 0.75rem;
-          border-radius: 8px;
-          border: 1px solid rgba(34, 197, 94, 0.2);
-        }
-
-        .location-error-text {
-          color: rgba(252, 165, 165, 0.95);
-          background: rgba(239, 68, 68, 0.15);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          border-radius: 12px;
-          padding: 1rem;
-          margin-bottom: 1rem;
-          font-size: 0.9rem;
-          line-height: 1.5;
-          text-align: center;
-        }
-
-        .district-select:focus {
-          background: rgba(59, 130, 246, 0.12) !important;
-          border-color: rgba(59, 130, 246, 0.25) !important;
-        }
-
-        .district-select option {
-          background: #1e293b !important;
-          color: white !important;
         }
 
         .stores-list {
@@ -1732,6 +1679,11 @@ const MultiCompanyCareerPage = () => {
           color: rgba(226, 232, 240, 0.7);
         }
 
+        .position-salary {
+          font-size: 0.875rem;
+          color: rgba(134, 239, 172, 0.9);
+        }
+
         .remove-position {
           background: rgba(239, 68, 68, 0.1);
           border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1757,8 +1709,48 @@ const MultiCompanyCareerPage = () => {
           transition: all 0.2s ease;
         }
 
+        .continue-button:hover {
+          transform: translateY(-1px);
+        }
+
         .confirmation-container {
           margin-bottom: 2rem;
+        }
+
+        .application-summary {
+          background: rgba(59, 130, 246, 0.08);
+          backdrop-filter: blur(20px);
+          border-radius: 16px;
+          padding: 1.5rem;
+          border: 1px solid rgba(59, 130, 246, 0.15);
+          margin-bottom: 2rem;
+        }
+
+        .summary-positions {
+          display: grid;
+          gap: 0.75rem;
+        }
+
+        .summary-position {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(59, 130, 246, 0.1);
+          border-radius: 12px;
+          padding: 1rem;
+          border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .position-name {
+          font-weight: 600;
+          color: white;
+          margin-bottom: 0.25rem;
+        }
+
+        .position-location {
+          font-size: 0.875rem;
+          color: rgba(226, 232, 240, 0.7);
+          margin-bottom: 0.25rem;
         }
 
         .interview-info {
@@ -1823,9 +1815,14 @@ const MultiCompanyCareerPage = () => {
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
 
-        .ai-interview-button:hover {
+        .ai-interview-button:hover:not(:disabled) {
           transform: translateY(-1px);
           box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-interview-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         .privacy-note {
@@ -1842,121 +1839,6 @@ const MultiCompanyCareerPage = () => {
           font-size: 0.875rem;
           color: rgba(134, 239, 172, 0.9);
           line-height: 1.5;
-        }
-
-        .form-container {
-          margin-bottom: 2rem;
-        }
-
-        .form-group {
-          margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
-          color: rgba(226, 232, 240, 0.9);
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 0.875rem;
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(59, 130, 246, 0.15);
-          border-radius: 12px;
-          font-size: 1rem;
-          color: white;
-          outline: none;
-          transition: all 0.2s ease;
-          box-sizing: border-box;
-        }
-
-        .form-input:focus {
-          background: rgba(59, 130, 246, 0.12);
-          border-color: rgba(59, 130, 246, 0.25);
-        }
-
-        .form-input::placeholder {
-          color: rgba(226, 232, 240, 0.5);
-        }
-
-        .application-summary {
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          border: 1px solid rgba(59, 130, 246, 0.15);
-          margin-bottom: 2rem;
-        }
-
-        .summary-positions {
-          display: grid;
-          gap: 0.75rem;
-        }
-
-        .summary-position {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(59, 130, 246, 0.1);
-          border-radius: 12px;
-          padding: 1rem;
-          border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .position-name {
-          font-weight: 600;
-          color: white;
-          margin-bottom: 0.25rem;
-        }
-
-        .position-location {
-          font-size: 0.875rem;
-          color: rgba(226, 232, 240, 0.7);
-          margin-bottom: 0.25rem;
-        }
-
-        .position-salary {
-          font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
-        }
-
-        .selected-indicator {
-          margin-top: 0.5rem;
-          font-size: 0.8rem;
-          color: var(--brand-color);
-          font-weight: 600;
-          text-align: center;
-          background: var(--brand-color-light);
-          padding: 0.25rem 0.5rem;
-          border-radius: 6px;
-        }
-
-        .urgent-indicator {
-          font-size: 1.25rem;
-        }
-
-        .submit-button {
-          width: 100%;
-          padding: 1.25rem;
-          border-radius: 16px;
-          font-weight: 600;
-          font-size: 1.125rem;
-          color: white;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-        }
-
-        .submit-button.disabled {
-          cursor: not-allowed;
-          opacity: 0.6;
         }
 
         .modal-overlay {
@@ -2040,9 +1922,19 @@ const MultiCompanyCareerPage = () => {
           margin-bottom: 0.5rem;
         }
 
-        .position-salary {
-          font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
+        .selected-indicator {
+          margin-top: 0.5rem;
+          font-size: 0.8rem;
+          color: var(--brand-color);
+          font-weight: 600;
+          text-align: center;
+          background: var(--brand-color-light);
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+        }
+
+        .urgent-indicator {
+          font-size: 1.25rem;
         }
 
         .icon {
@@ -2103,33 +1995,6 @@ const MultiCompanyCareerPage = () => {
             font-size: 0.8rem;
           }
 
-          .location-error-text {
-            font-size: 0.85rem;
-            padding: 0.875rem;
-          }
-
-          .district-selection.mobile-friendly {
-            margin: 0.5rem 0 1rem 0;
-            padding: 0.75rem;
-            border-radius: 16px;
-          }
-
-          .district-header h3 {
-            font-size: 0.9rem;
-          }
-
-          .district-select.mobile-select {
-            padding: 0.875rem 2.25rem 0.875rem 0.75rem;
-            font-size: 0.85rem;
-            min-height: 44px;
-            border-radius: 12px;
-          }
-
-          .district-help-text {
-            font-size: 0.75rem;
-            padding: 0.5rem;
-          }
-
           .cta-button {
             padding: 1.1rem 1.5rem;
             font-size: 1rem;
@@ -2168,13 +2033,11 @@ const MultiCompanyCareerPage = () => {
             font-size: 0.8rem;
           }
 
-          /* Fix map container on mobile */
           .map-container {
             height: 250px;
             margin-bottom: 1.5rem;
           }
 
-          /* Store cards mobile optimization */
           .store-card {
             padding: 1rem;
           }
@@ -2194,19 +2057,6 @@ const MultiCompanyCareerPage = () => {
           .urgent-badge {
             font-size: 0.7rem;
             padding: 0.2rem 0.4rem;
-          }
-
-          /* Compact district selection mobile styling */
-          .compact-district-select {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.7rem;
-            min-width: 120px;
-          }
-
-          .compact-error-message {
-            font-size: 0.7rem;
-            padding: 0.4rem 0.6rem;
-            min-width: 180px;
           }
         }
       `}</style>
