@@ -551,24 +551,29 @@ const MultiCompanyCareerPage = () => {
       )}
 
       {/* Header */}
-      <div className="header">
-        <div className="header-content">
-          <div className="header-left">
-            {step !== 'landing' && (
-              <button onClick={goBack} className="back-button">
-                <ArrowLeft className="icon-sm" />
-              </button>
-            )}
-            <div className="logo" style={{ background: companyConfig.brandColor }}>
-              {companyConfig.logo || companyConfig.brandName || 'Company'}
-            </div>
-            <span className="header-title">
-              {getTranslation('title')}
-              {selectedPositions.length > 0 && (
-                <span className="selection-count">✓</span>
-              )}
-            </span>
-          </div>
+<div className="header">
+  <div className="header-content">
+    <div className="header-left">
+      {step !== 'landing' && (
+        <button onClick={goBack} className="back-button">
+          <ArrowLeft className="icon-sm" />
+        </button>
+      )}
+      {companyConfig.photoUrl ? (
+        <img 
+          src={companyConfig.photoUrl} 
+          alt={companyConfig.name}
+          className="company-logo"
+        />
+      ) : (
+        <div className="logo" style={{ background: companyConfig.brandColor }}>
+          {companyConfig.logo}
+        </div>
+      )}
+      {selectedPositions.length > 0 && (
+        <span className="selection-count">✓</span>
+      )}
+    </div>
           <div className="language-selector">
             <button
               onClick={() => setShowLanguageMenu(!showLanguageMenu)}
