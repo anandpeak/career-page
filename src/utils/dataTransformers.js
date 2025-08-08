@@ -4,7 +4,7 @@ export const transformCompanyData = (apiData) => {
   const companyConfig = apiData.companyConfig || {};
   
   return {
-    companyId: companyConfig.name || 'company',
+    companyId: companyConfig.companyId || apiData.companyId || 'company', // ✅ Use actual numeric ID
     brandName: companyConfig.name || 'Company',
     subdomain: `${companyConfig.name || 'company'}.oneplace.hr`,
     brandColor: '#3b82f6',

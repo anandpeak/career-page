@@ -970,36 +970,44 @@ const MultiCompanyCareerPage = () => {
 
           {/* Start Interview Button */}
           <button
-            onClick={async () => {
-              // Try API submission first, fallback to mock
-              const sessionData = {
-                companyId: companyConfig.companyId,
-                storeId: selectedPositions[0]?.storeId,
-                storeName: selectedPositions[0]?.storeName,
-                positionId: selectedPositions[0]?.positionId,
-                positionTitle: selectedPositions[0]?.positionTitle,
-                language: language,
-                timestamp: Date.now(),
-                source: 'career_page'
-              };
-              
-              // Try API submission
-              const apiSuccess = await handleApiApplicationSubmit({
-                interview_type: 'ai',
-                session_data: sessionData
-              });
-              
-              if (apiSuccess) {
-                console.log('✅ Application submitted via API');
-                alert(`AI ярилцлага эхэлж байна! (API арқылы илгээгдсэн)\n\nАжлын байр: ${selectedPositions[0]?.positionTitle}\nДэлгүүр: ${selectedPositions[0]?.storeName}`);
-              } else {
-                console.log('🔄 Using fallback submission method');
-                alert(`AI ярилцлага эхэлж байна! (Local fallback)\n\nАжлын байр: ${selectedPositions[0]?.positionTitle}\nДэлгүүр: ${selectedPositions[0]?.storeName}`);
-              }
-            }}
-            className="ai-interview-button standout-button"
-            disabled={loading}
-          >
+  onClick={() => {
+    // Get company ID and job ID from API data
+    const companyId = companyConfig.companyId; // 316
+    const jobId = selectedPositions[0]?.positionId; // 2003
+    
+    console.log('🔗 Redirecting to AI interview:', { companyId, jobId });
+    console.log('🏢 Company:', companyConfig.brandName);
+    console.log('💼 Job:', selectedPositions[0]?.positionTitle);
+    
+    // Construct the chat URL
+    const chatUrl = `https://chat.oneplace.hr/chat/${companyId}/${jobId}`;
+    
+    console.log('🌐 Opening URL:', chatUrl);
+    
+    // Open in new tab/window
+    window.open(chatUrl, '_blank');
+    
+    // Optional: Also track the application submission in your analytics
+    if (api && typeof handleApiApplicationSubmit === 'function') {
+      handleApiApplicationSubmit({
+        interview_type: 'ai',
+        session_data: {
+          companyId: companyId,
+          jobId: jobId,
+          storeId: selectedPositions[0]?.storeId,
+          storeName: selectedPositions[0]?.storeName,
+          positionTitle: selectedPositions[0]?.positionTitle,
+          language: language,
+          timestamp: Date.now(),
+          source: 'career_page',
+          chatUrl: chatUrl
+        }
+      }).catch(err => console.log('📊 Analytics submission failed:', err));
+    }
+  }}
+  className="ai-interview-button standout-button"
+  disabled={loading || !selectedPositions.length}
+>
             <MessageSquare className="icon" />
             {loading ? 'Илгээж байна...' : 'AI ярилцлага эхлэх'}
             <Zap className="icon" />
