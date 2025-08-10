@@ -885,6 +885,11 @@ const MultiCompanyCareerPage = () => {
                       <div className="store-info">
                         <h3 className="store-name">{store.name}</h3>
                         <p className="store-address">{store.address}</p>
+                        {userLocation && store.hasValidCoordinates && (
+                          <p className="store-distance">
+                            📍 танаас {calculateDistance(userLocation.lat, userLocation.lng, store.lat, store.lng).toFixed(1)} км зайд
+                          </p>
+                        )}
                         <div className="positions-preview">
                           <span className="positions-count">
                             {store.positions.length} ажлын байр
@@ -1186,14 +1191,25 @@ const MultiCompanyCareerPage = () => {
           font-weight: 700;
           color: #111827;
           margin-bottom: 0.75rem;
-          line-height: 1.1;
+          line-height: 1.2;
+          word-wrap: break-word;
+          hyphens: auto;
+          text-align: center;
+          max-width: 100%;
         }
 
-        .hero-subtitle {
-          color: #374151;
-          font-size: 1.125rem;
-          margin-bottom: 1.5rem;
-          line-height: 1.4;
+        @media (max-width: 480px) {
+          .hero-title {
+            font-size: 1.875rem;
+            line-height: 1.3;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .hero-title {
+            font-size: 1.625rem;
+            line-height: 1.4;
+          }
         }
 
         .badges {
@@ -1550,6 +1566,13 @@ const MultiCompanyCareerPage = () => {
         .store-address {
           font-size: 0.875rem;
           color: #4b5563;
+          margin: 0 0 0.25rem 0;
+        }
+
+        .store-distance {
+          font-size: 0.75rem;
+          color: #059669;
+          font-weight: 500;
           margin: 0 0 0.75rem 0;
         }
 
