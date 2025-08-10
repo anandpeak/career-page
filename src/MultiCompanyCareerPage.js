@@ -246,7 +246,7 @@ const MultiCompanyCareerPage = () => {
   };
 
   const [companyConfig, setCompanyConfig] = useState(getCompanyFromSubdomain());
-  const [step, setStep] = useState('landing'); // landing, stores, position-select, apply
+  const [step, setStep] = useState('landing'); // landing, stores
   const [navigationHistory, setNavigationHistory] = useState(['landing']);
   const [userLocation, setUserLocation] = useState(null);
   const [stores, setStores] = useState([]);
@@ -356,6 +356,38 @@ const MultiCompanyCareerPage = () => {
       </div>
     );
   }
+
+  // Distance calculation function using Haversine formula
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in kilometers
+  };
+
+  // Get stores sorted by distance from user location
+  const getSortedStores = () => {
+    if (!userLocation || !stores.length) {
+      return stores;
+    }
+    
+    return [...stores].sort((a, b) => {
+      // Only sort stores that have valid coordinates
+      if (!a.hasValidCoordinates && !b.hasValidCoordinates) return 0;
+      if (!a.hasValidCoordinates) return 1;
+      if (!b.hasValidCoordinates) return -1;
+      
+      const distanceA = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
+      const distanceB = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
+      
+      return distanceA - distanceB;
+    });
+  };
 
   // Navigation functions
   const navigateTo = (newStep) => {
@@ -519,7 +551,7 @@ const MultiCompanyCareerPage = () => {
 
   // Dynamic styles based on company config
   const dynamicStyles = {
-    background: companyConfig.brandGradient,
+    background: '#f5f5f5', // Grey background for main pages
     '--brand-color': companyConfig.brandColor,
     '--brand-color-light': companyConfig.brandColor + '20',
     '--brand-color-medium': companyConfig.brandColor + '40'
@@ -609,13 +641,13 @@ const MultiCompanyCareerPage = () => {
           <div className="hero-section">
             <div className="trending-badge">
               <Zap className="icon-sm" />
-              <span>Хамгийн trendy ажлын байр 🔥</span>
+              <span>Ажилд ороход амархан 🔥</span>
             </div>
-            <h1 className="hero-title">{getTranslation('title')}</h1>
-            <p className="hero-subtitle">{getTranslation('subtitle')}</p>
+            <h1 className="hero-title">{companyConfig.brandName} - н нээлттэй ажлын байрууд</h1>
+
             <div className="badges">
-              <span className="badge green">Яахав эхэлцгээе! 🚀</span>
-              <span className="badge pink">Сайн санаатай баг 💫</span>
+              <span className="badge green">Шууд ярилцлагад ороорой! 🚀</span>
+              <span className="badge pink">Найрсаг баг хамт олон 💫</span>
             </div>
           </div>
 
@@ -647,16 +679,9 @@ const MultiCompanyCareerPage = () => {
             >
               <MapPin className="icon-sm" />
               <span>Гараар байршил сонгох</span>
-              <span className="safari-hint">(Safari/iPhone-д зориулсан)</span>
             </button>
 
-            {/* Safari/iOS tip */}
-            <div className="location-tip">
-              <span className="tip-icon">💡</span>
-              <span className="tip-text">
-                iPhone Safari дээр байршил ажиллахгүй бол "Гараар байршил сонгох" товчийг дарна уу
-              </span>
-            </div>
+
           </div>
 
           {/* Benefits Grid */}
@@ -850,7 +875,7 @@ const MultiCompanyCareerPage = () => {
 
               {/* Store Cards with Position Preview */}
               <div className="stores-list">
-                {stores.map((store) => (
+                {getSortedStores().map((store) => (
                   <div
                     key={store.id}
                     onClick={() => handleStoreClick(store)}
@@ -906,70 +931,6 @@ const MultiCompanyCareerPage = () => {
                   </div>
                   
                   <button
-  onClick={() => navigateTo('apply')}
-  className="continue-button standout-button"
->
-  <MessageSquare className="icon" />
-  AI ярилцлага эхлэх
-  <Zap className="icon" />
-</button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Application Confirmation */}
-      {step === 'apply' && (
-        <div className="page-content">
-          <div className="section-header">
-            <h2 className="section-title">AI ярилцлагад бэлэн үү?</h2>
-            <p className="section-subtitle">Таны сонгосон ажлын байрын талаар ярилцъя ✨</p>
-          </div>
-
-          <div className="confirmation-container">
-            {/* Selected Position Display */}
-            <div className="application-summary">
-              <h4 className="summary-title">
-                <Heart className="icon-sm" />
-                Таны сонгосон ажлын байр
-              </h4>
-              <div className="summary-positions">
-                {selectedPositions.map((sp) => (
-                  <div key={`${sp.storeId}-${sp.positionId}`} className="summary-position">
-                    <div className="position-details">
-                      <div className="position-name">
-                        {sp.positionTitle}
-                        {sp.urgent && <span className="urgent-indicator"> 🔥</span>}
-                      </div>
-                      <div className="position-location">{sp.storeName}</div>
-                      <div className="position-salary">{sp.salaryRange}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Interview Info */}
-            <div className="interview-info">
-              <div className="info-icon">
-                <MessageSquare className="icon" style={{ color: companyConfig.brandColor }} />
-              </div>
-              <div className="info-content">
-                <h3 className="info-title">AI ярилцлагын тухай</h3>
-                <ul className="info-list">
-                  <li>⏱️ 3-5 минут үргэлжлэх</li>
-                  <li>🤖 Найрсаг AI ажилд авагчтай ярилцана</li>
-                  <li>💬 Танайт ойролцоо асуултууд асуух болно</li>
-                  <li>📱 Утсаар эсвэл компьютераар хийж болно</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Start Interview Button */}
-          <button
   onClick={() => {
     // Get company ID and job ID from API data
     const companyId = companyConfig.companyId; // 316
@@ -1005,20 +966,17 @@ const MultiCompanyCareerPage = () => {
       }).catch(err => console.log('📊 Analytics submission failed:', err));
     }
   }}
-  className="ai-interview-button standout-button"
+  className="continue-button standout-button"
   disabled={loading || !selectedPositions.length}
 >
-            <MessageSquare className="icon" />
-            {loading ? 'Илгээж байна...' : 'AI ярилцлага эхлэх'}
-            <Zap className="icon" />
-          </button>
-
-          <div className="privacy-note">
-            <p>
-              🔒 Таны мэдээлэл бүрэн нууцлагдан хадгалагдана. 
-              AI ярилцлагын үр дүнг 24 цагийн дотор мэдэгдэх болно.
-            </p>
-          </div>
+  <MessageSquare className="icon" />
+  AI ярилцлага эхлэх
+  <Zap className="icon" />
+</button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 
@@ -1074,14 +1032,14 @@ const MultiCompanyCareerPage = () => {
           min-height: 100vh;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
           position: relative;
-          color: white;
+          color: #111827;
         }
 
         .header {
-          backdrop-filter: blur(20px) saturate(150%);
-          -webkit-backdrop-filter: blur(20px) saturate(150%);
-          background: rgba(15, 23, 42, 0.7);
-          border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+          background: white;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
           padding: 1rem;
           position: sticky;
           top: 0;
@@ -1112,7 +1070,7 @@ const MultiCompanyCareerPage = () => {
           border: 1px solid rgba(59, 130, 246, 0.2);
           border-radius: 8px;
           padding: 0.5rem;
-          color: white;
+          color: var(--brand-color);
           cursor: pointer;
           transition: all 0.2s ease;
         }
@@ -1150,11 +1108,11 @@ const MultiCompanyCareerPage = () => {
           align-items: center;
           gap: 0.5rem;
           background: rgba(59, 130, 246, 0.1);
-          backdrop-filter: blur(10px);
+          backdrop-filter: none;
           padding: 0.5rem 0.875rem;
           border-radius: 12px;
           border: 1px solid rgba(59, 130, 246, 0.15);
-          color: rgba(226, 232, 240, 0.9);
+          color: var(--brand-color);
           font-size: 0.875rem;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1200,6 +1158,7 @@ const MultiCompanyCareerPage = () => {
           margin: 0 auto;
           position: relative;
           z-index: 1;
+          background-color: #f5f5f5;
         }
 
         .hero-section {
@@ -1213,7 +1172,7 @@ const MultiCompanyCareerPage = () => {
           gap: 0.5rem;
           background: rgba(59, 130, 246, 0.1);
           backdrop-filter: blur(10px);
-          color: rgba(226, 232, 240, 0.9);
+          color: #111827;
           padding: 0.5rem 1rem;
           border-radius: 20px;
           font-size: 0.875rem;
@@ -1225,15 +1184,16 @@ const MultiCompanyCareerPage = () => {
         .hero-title {
           font-size: 2.25rem;
           font-weight: 700;
-          color: white;
+          color: #111827;
           margin-bottom: 0.75rem;
           line-height: 1.1;
         }
 
         .hero-subtitle {
-          color: rgba(226, 232, 240, 0.8);
+          color: #374151;
           font-size: 1.125rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
+          line-height: 1.4;
         }
 
         .badges {
@@ -1266,20 +1226,21 @@ const MultiCompanyCareerPage = () => {
           width: 100%;
           padding: 1.25rem 2rem;
           border-radius: 50px;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 1.125rem;
           color: white;
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          background: linear-gradient(135deg, var(--brand-color) 0%, var(--brand-color) 100%);
           border: none;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-          margin-bottom: 0.75rem;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-bottom: 1rem;
           position: relative;
           overflow: hidden;
+          letter-spacing: 0.5px;
         }
 
         .cta-button::before {
@@ -1298,9 +1259,9 @@ const MultiCompanyCareerPage = () => {
         }
 
         .cta-button:hover:not(:disabled) {
-          background: linear-gradient(135deg, #059669 0%, #047857 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2), 0 8px 10px rgba(0, 0, 0, 0.15);
+          filter: brightness(1.1);
         }
 
         .cta-button:disabled {
@@ -1350,7 +1311,7 @@ const MultiCompanyCareerPage = () => {
           border-radius: 12px;
           font-weight: 500;
           font-size: 1rem;
-          color: rgba(226, 232, 240, 0.9);
+          color: #374151;
           background: rgba(59, 130, 246, 0.08);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(59, 130, 246, 0.15);
@@ -1383,8 +1344,8 @@ const MultiCompanyCareerPage = () => {
 
         .safari-hint {
           font-size: 0.75rem;
-          color: rgba(226, 232, 240, 0.6);
-          font-weight: 400;
+          color: #6b7280;
+          font-style: italic;
         }
 
         .standout-button {
@@ -1421,10 +1382,6 @@ const MultiCompanyCareerPage = () => {
           margin-bottom: 1rem;
         }
 
-        .location-fallback-section {
-          margin-bottom: 2rem;
-        }
-
         .tip-icon {
           font-size: 1rem;
           flex-shrink: 0;
@@ -1432,7 +1389,7 @@ const MultiCompanyCareerPage = () => {
 
         .tip-text {
           font-size: 0.75rem;
-          color: rgba(134, 239, 172, 0.9);
+          color: #374151;
           line-height: 1.4;
         }
 
@@ -1469,13 +1426,13 @@ const MultiCompanyCareerPage = () => {
 
         .benefit-title {
           font-weight: 600;
-          color: white;
+          color: #111827;
           margin-bottom: 0.25rem;
         }
 
         .benefit-subtitle {
+          color: #374151;
           font-size: 0.875rem;
-          color: rgba(226, 232, 240, 0.7);
         }
 
         .section-header {
@@ -1486,12 +1443,13 @@ const MultiCompanyCareerPage = () => {
         .section-title {
           font-size: 1.5rem;
           font-weight: 700;
-          color: white;
+          color: #111827;
           margin-bottom: 0.5rem;
         }
 
         .section-subtitle {
-          color: rgba(226, 232, 240, 0.8);
+          color: #374151;
+          margin-bottom: 1.5rem;
           font-size: 1rem;
         }
 
@@ -1555,23 +1513,25 @@ const MultiCompanyCareerPage = () => {
         }
 
         .store-card {
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
+          background: white;
           border-radius: 16px;
-          padding: 1.25rem;
+          padding: 1.5rem;
           cursor: pointer;
           transition: all 0.2s ease;
-          border: 1px solid rgba(59, 130, 246, 0.1);
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          margin-bottom: 1rem;
         }
 
         .store-card:hover {
-          background: rgba(59, 130, 246, 0.12);
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         .store-card.selected {
           border-color: var(--brand-color);
-          background: var(--brand-color-light);
+          background: white;
+          box-shadow: 0 0 0 2px var(--brand-color), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .store-header {
@@ -1581,15 +1541,15 @@ const MultiCompanyCareerPage = () => {
         }
 
         .store-name {
-          font-weight: 600;
-          color: white;
-          font-size: 1.125rem;
+          font-weight: 700;
+          color: #111827;
+          font-size: 1.25rem;
           margin: 0 0 0.5rem 0;
         }
 
         .store-address {
           font-size: 0.875rem;
-          color: rgba(226, 232, 240, 0.7);
+          color: #4b5563;
           margin: 0 0 0.75rem 0;
         }
 
@@ -1601,16 +1561,18 @@ const MultiCompanyCareerPage = () => {
 
         .positions-count {
           font-size: 0.875rem;
-          color: rgba(226, 232, 240, 0.8);
+          color: #111827;
+          font-weight: 500;
         }
 
         .urgent-badge {
-          font-size: 0.75rem;
-          background: rgba(239, 68, 68, 0.1);
-          color: rgba(252, 165, 165, 0.9);
-          padding: 0.25rem 0.5rem;
-          border-radius: 8px;
-          border: 1px solid rgba(239, 68, 68, 0.2);
+          font-size: 0.7rem;
+          background: rgba(239, 68, 68, 0.15);
+          color: #dc2626;
+          padding: 0.2rem 0.4rem;
+          border-radius: 6px;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          font-weight: 600;
         }
 
         .selection-summary {
@@ -1625,8 +1587,11 @@ const MultiCompanyCareerPage = () => {
         .summary-title {
           font-size: 1rem;
           font-weight: 600;
-          color: white;
+          color: #111827;
           margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .selected-positions {
@@ -1646,19 +1611,21 @@ const MultiCompanyCareerPage = () => {
         }
 
         .position-title {
-          font-weight: 500;
-          color: white;
-          font-size: 0.9rem;
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 0.25rem;
         }
 
         .position-store {
-          font-size: 0.8rem;
-          color: rgba(226, 232, 240, 0.7);
+          font-size: 0.875rem;
+          color: #6b7280;
+          margin-bottom: 0.25rem;
         }
 
         .position-salary {
+          color: #059669;
+          font-weight: 600;
           font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
         }
 
         .remove-position {
@@ -1690,138 +1657,10 @@ const MultiCompanyCareerPage = () => {
           transform: translateY(-1px);
         }
 
-        .confirmation-container {
-          margin-bottom: 2rem;
-        }
-
-        .application-summary {
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          border: 1px solid rgba(59, 130, 246, 0.15);
-          margin-bottom: 2rem;
-        }
-
-        .summary-positions {
-          display: grid;
-          gap: 0.75rem;
-        }
-
-        .summary-position {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(59, 130, 246, 0.1);
-          border-radius: 12px;
-          padding: 1rem;
-          border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .position-name {
-          font-weight: 600;
-          color: white;
-          margin-bottom: 0.25rem;
-        }
-
-        .position-location {
-          font-size: 0.875rem;
-          color: rgba(226, 232, 240, 0.7);
-          margin-bottom: 0.25rem;
-        }
-
-        .interview-info {
-          background: rgba(59, 130, 246, 0.08);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          border: 1px solid rgba(59, 130, 246, 0.15);
-          margin-bottom: 2rem;
-          display: flex;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .info-icon {
-          background: rgba(59, 130, 246, 0.15);
-          border-radius: 12px;
-          padding: 0.75rem;
-          flex-shrink: 0;
-        }
-
-        .info-content {
-          flex: 1;
-        }
-
-        .info-title {
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: white;
-          margin: 0 0 1rem 0;
-        }
-
-        .info-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: grid;
-          gap: 0.5rem;
-        }
-
-        .info-list li {
-          color: rgba(226, 232, 240, 0.8);
-          font-size: 0.875rem;
-          padding: 0.25rem 0;
-        }
-
-        .ai-interview-button {
-          width: 100%;
-          padding: 1.25rem;
-          border-radius: 16px;
-          font-weight: 600;
-          font-size: 1.125rem;
-          color: white;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.75rem;
-          margin-bottom: 1rem;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .ai-interview-button:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .ai-interview-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .privacy-note {
-          text-align: center;
-          background: rgba(34, 197, 94, 0.08);
-          backdrop-filter: blur(10px);
-          border-radius: 12px;
-          padding: 1rem;
-          border: 1px solid rgba(34, 197, 94, 0.15);
-        }
-
-        .privacy-note p {
-          margin: 0;
-          font-size: 0.875rem;
-          color: rgba(134, 239, 172, 0.9);
-          line-height: 1.5;
-        }
-
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(0, 0, 0, 0.5);
           z-index: 2000;
           display: flex;
           align-items: center;
@@ -1830,13 +1669,13 @@ const MultiCompanyCareerPage = () => {
         }
 
         .modal-content {
-          background: rgba(15, 23, 42, 0.95);
-          backdrop-filter: blur(20px);
+          background: white;
           border-radius: 16px;
           padding: 1.5rem;
           max-width: 400px;
           width: 100%;
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
         .modal-header {
@@ -1848,23 +1687,23 @@ const MultiCompanyCareerPage = () => {
 
         .modal-title {
           font-size: 1.25rem;
-          font-weight: 600;
-          color: white;
+          font-weight: 700;
+          color: #111827;
           margin: 0;
         }
 
         .modal-close {
-          background: rgba(59, 130, 246, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: #f3f4f6;
+          border: 1px solid #e5e7eb;
           border-radius: 8px;
           padding: 0.5rem;
-          color: white;
+          color: #4b5563;
           cursor: pointer;
           transition: all 0.2s ease;
         }
 
         .modal-subtitle {
-          color: rgba(226, 232, 240, 0.8);
+          color: #6b7280;
           margin-bottom: 1rem;
         }
 
