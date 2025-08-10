@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css';
 import React, { useState, useEffect } from 'react';
-import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart, ArrowLeft, X, Map, Building2 } from 'lucide-react';
+import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart, ArrowLeft, ArrowRight, X, Map, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { CareerPageAPI } from './services/api';
@@ -100,7 +100,30 @@ const COMPANY_CONFIGS = {
         availablePositions: 'Нээлттэй ажлын байрууд',
         apply: 'Ажилд оръё',
         urgent: 'Яаралтай',
-        back: 'Буцах'
+        back: 'Буцах',
+        // New comprehensive translations
+        heroTitleSuffix: '- н нээлттэй ажлын байрууд',
+        trendingBadge: 'Ажилд ороход амархан 🔥',
+        badgeGreen: 'Шууд ярилцлагад ороорой! 🚀',
+        badgePink: 'Найрсаг баг хамт олон 💫',
+        loadingLocation: 'Байршил хайж байна...',
+        salaryTitle: 'Өрсөлдөхүйц сарын цалин',
+        salarySubtitle: 'Цалингаа өдөртөө аваарай',
+        flexibleHours: 'Уян хатан ажлын цаг',
+        flexibleSubtitle: 'Цагаа сонгох боломжтой',
+        noExperience: 'Туршлага шаардахгүй',
+        noExperienceSubtitle: 'Бүрэн сургалттай',
+        nearbyStores: 'Таны ойролцоох дэлгүүрүүд',
+        selectStore: 'Салбар сонгоорой',
+        loadingStores: 'Дэлгүүрийн мэдээлэл ачааллаж байна...',
+        yourLocation: 'Таны байршил',
+        viewJobs: 'Ажлын байр харах',
+        jobsAvailable: 'ажлын байр',
+        distanceFrom: 'танаас',
+        kmAway: 'км зайд',
+        selectedJob: 'Сонгосон ажлын байр',
+        locationSearching: 'Таны байршлыг хайж байна...',
+        mapLoading: 'Байршил ачаалж байна...'
       },
       en: {
         title: 'Work at GS25',
@@ -111,7 +134,30 @@ const COMPANY_CONFIGS = {
         availablePositions: 'Available Positions',
         apply: 'Apply',
         urgent: 'Urgent',
-        back: 'Back'
+        back: 'Back',
+        // New comprehensive translations
+        heroTitleSuffix: ' - Open Positions',
+        trendingBadge: 'Easy to get hired 🔥',
+        badgeGreen: 'Start interview right away! 🚀',
+        badgePink: 'Friendly team environment 💫',
+        loadingLocation: 'Finding your location...',
+        salaryTitle: 'Competitive Salary',
+        salarySubtitle: 'Get paid daily',
+        flexibleHours: 'Flexible Working Hours',
+        flexibleSubtitle: 'Choose your schedule',
+        noExperience: 'No Experience Required',
+        noExperienceSubtitle: 'Full training provided',
+        nearbyStores: 'Stores Near You',
+        selectStore: 'Select a branch',
+        loadingStores: 'Loading store information...',
+        yourLocation: 'Your Location',
+        viewJobs: 'View Jobs',
+        jobsAvailable: 'jobs available',
+        distanceFrom: 'from you',
+        kmAway: 'km away',
+        selectedJob: 'Selected Position',
+        locationSearching: 'Searching for your location...',
+        mapLoading: 'Loading location...'
       }
     }
   },
@@ -138,7 +184,30 @@ const COMPANY_CONFIGS = {
         availablePositions: 'Нээлттэй ажлын байрууд',
         apply: 'Ажилд оръё',
         urgent: 'Яаралтай',
-        back: 'Буцах'
+        back: 'Буцах',
+        // New comprehensive translations
+        heroTitleSuffix: '- н нээлттэй ажлын байрууд',
+        trendingBadge: 'Ажилд ороход амархан 🔥',
+        badgeGreen: 'Шууд ярилцлагад ороорой! 🚀',
+        badgePink: 'Найрсаг баг хамт олон 💫',
+        loadingLocation: 'Байршил хайж байна...',
+        salaryTitle: 'Өрсөлдөхүйц сарын цалин',
+        salarySubtitle: 'Цалингаа өдөртөө аваарай',
+        flexibleHours: 'Уян хатан ажлын цаг',
+        flexibleSubtitle: 'Цагаа сонгох боломжтой',
+        noExperience: 'Туршлага шаардахгүй',
+        noExperienceSubtitle: 'Бүрэн сургалттай',
+        nearbyStores: 'Таны ойролцоох дэлгүүрүүд',
+        selectStore: 'Салбар сонгоорой',
+        loadingStores: 'Дэлгүүрийн мэдээлэл ачааллаж байна...',
+        yourLocation: 'Таны байршил',
+        viewJobs: 'Ажлын байр харах',
+        jobsAvailable: 'ажлын байр',
+        distanceFrom: 'танаас',
+        kmAway: 'км зайд',
+        selectedJob: 'Сонгосон ажлын байр',
+        locationSearching: 'Таны байршлыг хайж байна...',
+        mapLoading: 'Байршил ачаалж байна...'
       },
       en: {
         title: 'Work at Carrefour',
@@ -149,7 +218,30 @@ const COMPANY_CONFIGS = {
         availablePositions: 'Available Positions',
         apply: 'Apply',
         urgent: 'Urgent',
-        back: 'Back'
+        back: 'Back',
+        // New comprehensive translations
+        heroTitleSuffix: ' - Open Positions',
+        trendingBadge: 'Easy to get hired 🔥',
+        badgeGreen: 'Start interview right away! 🚀',
+        badgePink: 'Friendly team environment 💫',
+        loadingLocation: 'Finding your location...',
+        salaryTitle: 'Competitive Salary',
+        salarySubtitle: 'Get paid daily',
+        flexibleHours: 'Flexible Working Hours',
+        flexibleSubtitle: 'Choose your schedule',
+        noExperience: 'No Experience Required',
+        noExperienceSubtitle: 'Full training provided',
+        nearbyStores: 'Stores Near You',
+        selectStore: 'Select a branch',
+        loadingStores: 'Loading store information...',
+        yourLocation: 'Your Location',
+        viewJobs: 'View Jobs',
+        jobsAvailable: 'jobs available',
+        distanceFrom: 'from you',
+        kmAway: 'km away',
+        selectedJob: 'Selected Position',
+        locationSearching: 'Searching for your location...',
+        mapLoading: 'Loading location...'
       }
     }
   }
@@ -405,68 +497,167 @@ const MultiCompanyCareerPage = () => {
     }
   };
 
-  // Enhanced location handling for Safari/iOS
+  // Enhanced location handling for all devices including Android
   const getUserLocation = async () => {
     setLoading(true);
     setLocationError('');
     
     // Check if geolocation is supported
     if (!navigator.geolocation) {
-      setLocationError('Таны төхөөрөмж байршил тодорхойлохыг дэмжихгүй байна. Дүүргээ гараар сонгоно уу.');
+      setLocationError(getTranslation('locationNotSupported') || 'Таны төхөөрөмж байршил тодорхойлохыг дэмжихгүй байна. Дүүргээ гараар сонгоно уу.');
       setLoading(false);
       return;
     }
 
-    // Check if we're on Safari/iOS for better error handling
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    // Enhanced device detection for better error handling
+    const userAgent = navigator.userAgent;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /Android/.test(userAgent);
+    const isChrome = /Chrome/.test(userAgent);
+    const isMobile = /Mobi|Android/i.test(userAgent);
     
-    // Safari-specific timeout (shorter for better UX)
-    const timeoutDuration = (isSafari || isIOS) ? 6000 : 10000;
+    console.log('📱 Device detection:', { isSafari, isIOS, isAndroid, isChrome, isMobile });
     
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        setUserLocation({ lat: userLat, lng: userLng });
-        setLoading(false);
-        navigateTo('stores');
-      },
-      (error) => {
-        let errorMessage = '';
-        
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            if (isSafari || isIOS) {
-              errorMessage = '📱 Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Safari → Байршил → "Зөвшөөрөх" гэж сонгоно уу. Эсвэл доорх дүүргээ сонгоно уу.';
-            } else {
-              errorMessage = '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү. Эсвэл доорх дүүргээ сонгоно уу.';
-            }
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = '📍 Байршил олдохгүй байна. GPS эсвэл интернет холболтоо шалгаад дахин оролдоно уу. Эсвэл доорх дүүргээ сонгоно уу.';
-            break;
-          case error.TIMEOUT:
-            if (isSafari || isIOS) {
-              errorMessage = '⏱️ Safari дээр байршил хүлээх хугацаа дууссан. Доорх дүүргээ сонгоно уу.';
-            } else {
-              errorMessage = '⏱️ Байршил хүлээх хугацаа дууссан. Доорх дүүргээ сонгоно уу.';
-            }
-            break;
-          default:
-            errorMessage = '❌ Байршил тодорхойлоход алдаа гарлаа. Доорх дүүргээ сонгоно уу.';
-        }
-        
-        setLocationError(errorMessage);
-        setLoading(false);
-        // Don't auto-navigate, let user select district first
-      },
-      {
-        enableHighAccuracy: false, // Use less accurate but faster positioning
+    // Device-specific timeout and options
+    let timeoutDuration = 15000; // Default 15 seconds
+    let geolocationOptions = {
+      enableHighAccuracy: true,
+      timeout: timeoutDuration,
+      maximumAge: 60000 // 1 minute cache
+    };
+    
+    // Android-specific optimizations
+    if (isAndroid) {
+      timeoutDuration = 20000; // Longer timeout for Android
+      geolocationOptions = {
+        enableHighAccuracy: true, // Critical for Android GPS accuracy
         timeout: timeoutDuration,
-        maximumAge: 600000 // 10 minutes cache for better performance
-      }
-    );
+        maximumAge: 30000 // Shorter cache for Android (30 seconds)
+      };
+      console.log('🤖 Android device detected - using optimized settings');
+    }
+    // iOS/Safari-specific optimizations  
+    else if (isSafari || isIOS) {
+      timeoutDuration = 8000; // Shorter timeout for iOS
+      geolocationOptions = {
+        enableHighAccuracy: false, // Sometimes better on iOS
+        timeout: timeoutDuration,
+        maximumAge: 300000 // 5 minutes cache for iOS
+      };
+      console.log('🍎 iOS/Safari device detected - using optimized settings');
+    }
+    
+    // Try multiple geolocation attempts for better reliability
+    const attemptGeolocation = (attemptNumber = 1) => {
+      console.log(`📍 Geolocation attempt ${attemptNumber}/3`);
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+          
+          // Enhanced coordinate validation and debugging
+          console.log('📍 Geolocation success:', {
+            attempt: attemptNumber,
+            latitude: userLat,
+            longitude: userLng,
+            accuracy: accuracy,
+            timestamp: new Date(position.timestamp).toISOString(),
+            device: { isAndroid, isIOS, isSafari, isChrome }
+          });
+          
+          // Validate coordinates are reasonable for Mongolia/Asia
+          const isValidMongoliaCoords = (
+            userLat >= 41.5 && userLat <= 52.2 && 
+            userLng >= 87.7 && userLng <= 119.9
+          );
+          
+          if (!isValidMongoliaCoords) {
+            console.warn('⚠️ Coordinates outside Mongolia region:', { 
+              userLat, 
+              userLng,
+              expectedRange: 'Lat: 41.5-52.2, Lng: 87.7-119.9'
+            });
+            
+            // For Android, try again with different settings if coordinates seem wrong
+            if (isAndroid && attemptNumber < 3) {
+              console.log('🔄 Android: Retrying with different accuracy settings...');
+              geolocationOptions.enableHighAccuracy = !geolocationOptions.enableHighAccuracy;
+              setTimeout(() => attemptGeolocation(attemptNumber + 1), 1000);
+              return;
+            }
+          }
+          
+          // Check accuracy - if too low on Android, try again
+          if (isAndroid && accuracy > 1000 && attemptNumber < 3) {
+            console.log(`🔄 Android: Low accuracy (${accuracy}m), retrying...`);
+            setTimeout(() => attemptGeolocation(attemptNumber + 1), 1000);
+            return;
+          }
+          
+          setUserLocation({ lat: userLat, lng: userLng });
+          setLoading(false);
+          navigateTo('stores');
+        },
+        (error) => {
+          console.error(`❌ Geolocation error (attempt ${attemptNumber}):`, {
+            code: error.code,
+            message: error.message,
+            device: { isAndroid, isIOS, isSafari }
+          });
+          
+          // Retry logic for Android devices
+          if (isAndroid && attemptNumber < 3 && error.code === error.TIMEOUT) {
+            console.log('🔄 Android: Timeout, retrying with different settings...');
+            geolocationOptions.timeout += 5000; // Increase timeout
+            geolocationOptions.enableHighAccuracy = false; // Try with lower accuracy
+            setTimeout(() => attemptGeolocation(attemptNumber + 1), 1000);
+            return;
+          }
+          
+          let errorMessage = '';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              if (isAndroid) {
+                errorMessage = '🤖 Android дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Аппликейшн → Chrome/Browser → Зөвшөөрөл → Байршил → "Зөвшөөрөх" гэж сонгоно уу.';
+              } else if (isSafari || isIOS) {
+                errorMessage = '📱 Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Safari → Байршил → "Зөвшөөрөх" гэж сонгоно уу.';
+              } else {
+                errorMessage = '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү.';
+              }
+              break;
+            case error.POSITION_UNAVAILABLE:
+              if (isAndroid) {
+                errorMessage = '📍 Android дээр байршил олдохгүй байна. GPS-ийг идэвхжүүлж, интернет холболтоо шалгаад дахин оролдоно уу.';
+              } else {
+                errorMessage = '📍 Байршил олдохгүй байна. GPS эсвэл интернет холболтоо шалгаад дахин оролдоно уу.';
+              }
+              break;
+            case error.TIMEOUT:
+              if (isAndroid) {
+                errorMessage = '⏱️ Android дээр байршил хүлээх хугацаа дууссан. GPS сигнал сул байж болзошгүй.';
+              } else if (isSafari || isIOS) {
+                errorMessage = '⏱️ Safari дээр байршил хүлээх хугацаа дууссан.';
+              } else {
+                errorMessage = '⏱️ Байршил хүлээх хугацаа дууссан.';
+              }
+              break;
+            default:
+              errorMessage = '❌ Байршил тодорхойлоход алдаа гарлаа.';
+          }
+          
+          setLocationError(errorMessage);
+          setLoading(false);
+        },
+        geolocationOptions
+      );
+    };
+    
+    // Start the geolocation attempt
+    attemptGeolocation();
   };
   
   // Manual location selection for Safari/iOS users
@@ -546,7 +737,31 @@ const MultiCompanyCareerPage = () => {
   };
 
   const getTranslation = (key) => {
-    return companyConfig.translations[language][key] || key;
+    // Direct access to COMPANY_CONFIGS to ensure we get the translations
+    const gs25Config = COMPANY_CONFIGS['gs25'];
+    const currentLanguage = language || 'mn';
+    
+    // Simple direct translation access
+    if (gs25Config && gs25Config.translations && gs25Config.translations[currentLanguage] && gs25Config.translations[currentLanguage][key]) {
+      return gs25Config.translations[currentLanguage][key];
+    }
+    
+    // Fallback to Carrefour if needed
+    const carrefourConfig = COMPANY_CONFIGS['carrefour'];
+    if (carrefourConfig && carrefourConfig.translations && carrefourConfig.translations[currentLanguage] && carrefourConfig.translations[currentLanguage][key]) {
+      return carrefourConfig.translations[currentLanguage][key];
+    }
+    
+    // Debug logging
+    console.error('🔍 Translation failed for:', {
+      key,
+      language: currentLanguage,
+      gs25HasTranslations: !!(gs25Config?.translations?.[currentLanguage]),
+      carrefourHasTranslations: !!(carrefourConfig?.translations?.[currentLanguage]),
+      availableKeys: gs25Config?.translations?.[currentLanguage] ? Object.keys(gs25Config.translations[currentLanguage]) : 'none'
+    });
+    
+    return key; // Return key as fallback
   };
 
   // Dynamic styles based on company config
@@ -580,6 +795,9 @@ const MultiCompanyCareerPage = () => {
           <div>📍 Store Names: {stores.map(s => s.name).join(', ')}</div>
           <div>🔄 Data Loading: {dataLoading ? 'Yes' : 'No'}</div>
           <div>❌ API Error: {dataError || 'None'}</div>
+          {userLocation && (
+            <div>🗺️ User Location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</div>
+          )}
         </div>
       )}
 
@@ -642,13 +860,13 @@ const MultiCompanyCareerPage = () => {
           <div className="hero-section">
             <div className="trending-badge">
               <Zap className="icon-sm" />
-              <span>Ажилд ороход амархан 🔥</span>
+              <span>{getTranslation('trendingBadge')}</span>
             </div>
-            <h1 className="hero-title">{companyConfig.brandName} - н нээлттэй ажлын байрууд</h1>
+            <h1 className="hero-title">{companyConfig.brandName}{getTranslation('heroTitleSuffix')}</h1>
 
             <div className="badges">
-              <span className="badge green">Шууд ярилцлагад ороорой! 🚀</span>
-              <span className="badge pink">Найрсаг баг хамт олон 💫</span>
+              <span className="badge green">{getTranslation('badgeGreen')}</span>
+              <span className="badge pink">{getTranslation('badgePink')}</span>
             </div>
           </div>
 
@@ -661,13 +879,13 @@ const MultiCompanyCareerPage = () => {
               {loading ? (
                 <>
                   <div className="spinner"></div>
-                  <span>Байршил хайж байна...</span>
+                  <span>{getTranslation('loadingLocation')}</span>
                 </>
               ) : (
                 <>
                   <MapPin className="icon-left" />
                   <span>{getTranslation('findNearby')}</span>
-                  <Zap className="icon-right" />
+                  <ArrowRight className="icon-right" />
                 </>
               )}
             </button>
@@ -681,8 +899,8 @@ const MultiCompanyCareerPage = () => {
                 <DollarSign className="icon" />
               </div>
               <div className="benefit-content">
-                <div className="benefit-title">Өрсөлдөхүйц сарын цалин</div>
-                <div className="benefit-subtitle">Цалингаа өдөртөө аваарай</div>
+                <div className="benefit-title">{getTranslation('salaryTitle')}</div>
+                <div className="benefit-subtitle">{getTranslation('salarySubtitle')}</div>
               </div>
             </div>
             
@@ -691,8 +909,8 @@ const MultiCompanyCareerPage = () => {
                 <Clock className="icon" />
               </div>
               <div className="benefit-content">
-                <div className="benefit-title">Уян хатан ажлын цаг</div>
-                <div className="benefit-subtitle">Цагаа сонгох боломжтой</div>
+                <div className="benefit-title">{getTranslation('flexibleHours')}</div>
+                <div className="benefit-subtitle">{getTranslation('flexibleSubtitle')}</div>
               </div>
             </div>
             
@@ -701,8 +919,8 @@ const MultiCompanyCareerPage = () => {
                 <Briefcase className="icon" />
               </div>
               <div className="benefit-content">
-                <div className="benefit-title">Туршлага шаардахгүй</div>
-                <div className="benefit-subtitle">Бүрэн сургалттай</div>
+                <div className="benefit-title">{getTranslation('noExperience')}</div>
+                <div className="benefit-subtitle">{getTranslation('noExperienceSubtitle')}</div>
               </div>
             </div>
           </div>
@@ -713,9 +931,23 @@ const MultiCompanyCareerPage = () => {
       {step === 'stores' && (
         <div className="page-content">
           <div className="section-header">
-            <h2 className="section-title">Таны ойролцоох дэлгүүрүүд</h2>
+            <h2 className="section-title">{getTranslation('nearbyStores')}</h2>
             <p className="section-subtitle">{getTranslation('selectStores')}</p>
           </div>
+
+          {/* Location Debug Info - only show in development */}
+          {userLocation && process.env.NODE_ENV === 'development' && (
+            <div style={{
+              background: 'rgba(0,0,0,0.1)',
+              padding: '0.5rem',
+              borderRadius: '4px',
+              fontSize: '0.8rem',
+              marginBottom: '1rem',
+              color: 'rgba(255,255,255,0.8)'
+            }}>
+              🐛 Debug: Your location: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+            </div>
+          )}
 
           {/* Show loading if we don't have stores data yet */}
           {stores.length === 0 && (apiStores.length === 0 || dataLoading) ? (
@@ -736,7 +968,7 @@ const MultiCompanyCareerPage = () => {
                 animation: 'spin 1s linear infinite',
                 marginBottom: '1rem'
               }}></div>
-              <p>Дэлгүүрийн мэдээлэл ачааллаж байна...</p>
+              <p>{getTranslation('loadingStores')}</p>
             </div>
           ) : (
             <>
@@ -764,7 +996,7 @@ const MultiCompanyCareerPage = () => {
                     <Marker position={[userLocation.lat, userLocation.lng]}>
                       <Popup>
                         <div style={{ textAlign: 'center', color: '#333' }}>
-                          <strong>📍 Таны байршил</strong>
+                          <strong>📍 {getTranslation('yourLocation')}</strong>
                         </div>
                       </Popup>
                     </Marker>
@@ -804,7 +1036,7 @@ const MultiCompanyCareerPage = () => {
                               <br />
                               <div style={{ marginTop: '8px', padding: '4px 8px', background: '#f0f9ff', borderRadius: '4px' }}>
                                 <strong style={{ color: companyConfig.brandColor }}>
-                                  {store.positions.length} ажлын байр
+                                  {store.positions.length} {getTranslation('jobsAvailable')}
                                 </strong>
                                 {hasUrgentPositions && (
                                   <span style={{ 
@@ -848,12 +1080,12 @@ const MultiCompanyCareerPage = () => {
                     {loading ? (
                       <>
                         <div className="spinner"></div>
-                        <p>Таны байршлыг хайж байна...</p>
+                        <p>{getTranslation('locationSearching')}</p>
                       </>
                     ) : (
                       <>
                         <Map className="map-icon" />
-                        <p>Байршил ачаалж байна...</p>
+                        <p>{getTranslation('mapLoading')}</p>
                         {locationError && (
                           <p className="map-error">{locationError}</p>
                         )}
@@ -877,20 +1109,30 @@ const MultiCompanyCareerPage = () => {
                         <p className="store-address">{store.address}</p>
                         {userLocation && store.hasValidCoordinates && (
                           <p className="store-distance">
-                            📍 танаас {calculateDistance(userLocation.lat, userLocation.lng, store.lat, store.lng).toFixed(1)} км зайд
+                            📍 {calculateDistance(userLocation.lat, userLocation.lng, store.lat, store.lng).toFixed(1)} {getTranslation('kmAway')} {getTranslation('distanceFrom')}
                           </p>
                         )}
                         <div className="positions-preview">
                           <span className="positions-count">
-                            {store.positions.length} ажлын байр
+                            {store.positions.length} {getTranslation('jobsAvailable')}
                           </span>
                           {store.positions.some(p => p.urgent) && (
-                            <span className="urgent-badge">🔥 Яаралтай</span>
+                            <span className="urgent-badge">🔥 {getTranslation('urgent')}</span>
                           )}
                         </div>
                       </div>
                       <div className="store-action">
-                        <Building2 className="icon" style={{ color: companyConfig.brandColor }} />
+                        {companyConfig.photoUrl ? (
+                          <img 
+                            src={companyConfig.photoUrl} 
+                            alt={companyConfig.brandName}
+                            className="store-company-logo"
+                          />
+                        ) : (
+                          <div className="store-company-logo-text" style={{ background: companyConfig.brandColor }}>
+                            {companyConfig.logo}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -900,7 +1142,7 @@ const MultiCompanyCareerPage = () => {
               {/* Selected Position Summary */}
               {selectedPositions.length > 0 && (
                 <div className="selection-summary">
-                  <h3 className="summary-title">Сонгосон ажлын байр</h3>
+                  <h3 className="summary-title">{getTranslation('selectedJob')}</h3>
                   <div className="selected-positions">
                     {selectedPositions.map((sp) => (
                       <div key={`${sp.storeId}-${sp.positionId}`} className="selected-position">
@@ -965,7 +1207,7 @@ const MultiCompanyCareerPage = () => {
   disabled={loading || !selectedPositions.length}
 >
   <MessageSquare className="icon" />
-  AI ярилцлага эхлэх
+  {getTranslation('Interview with AI')}
   <Zap className="icon" />
 </button>
                 </div>
@@ -1237,10 +1479,10 @@ const MultiCompanyCareerPage = () => {
 
         .cta-button {
           width: 100%;
-          padding: 1.25rem 2rem;
+          padding: 1.5rem 2.5rem;
           border-radius: 50px;
           font-weight: 700;
-          font-size: 1.125rem;
+          font-size: 1.25rem;
           color: white;
           background: linear-gradient(135deg, ${companyConfig?.brandColor || '#3b82f6'} 0%, ${companyConfig?.brandColor || '#3b82f6'} 100%);
           border: none;
@@ -1249,11 +1491,12 @@ const MultiCompanyCareerPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-shadow: 0 8px 16px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.3), 0 4px 8px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.2);
-          margin-bottom: 1rem;
+          box-shadow: 0 10px 20px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.4), 0 6px 12px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.3);
+          margin-bottom: 1.5rem;
           position: relative;
           overflow: hidden;
           letter-spacing: 0.5px;
+          min-height: 64px;
         }
 
         .cta-button::before {
@@ -1559,7 +1802,40 @@ const MultiCompanyCareerPage = () => {
         .store-header {
           display: flex;
           justify-content: space-between;
+          align-items: flex-start;
+        }
+
+        .store-info {
+          flex: 1;
+          text-align: left;
+        }
+
+        .store-action {
+          flex-shrink: 0;
+          margin-left: 1rem;
+        }
+
+        .store-company-logo {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          object-fit: contain;
+          background: white;
+          padding: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .store-company-logo-text {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
           align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: 600;
+          font-size: 0.875rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .store-name {
