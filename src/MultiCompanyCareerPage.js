@@ -985,11 +985,10 @@ const MultiCompanyCareerPage = () => {
                       borderRadius: '16px',
                       zIndex: 1
                     }}
-                    attributionControl={true}
+                    attributionControl={false}
                   >
                     <TileLayer
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
                     />
                     
                     {/* User location marker */}
