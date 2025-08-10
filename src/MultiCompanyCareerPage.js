@@ -574,6 +574,7 @@ const MultiCompanyCareerPage = () => {
           maxWidth: '300px'
         }}>
           <div>🏢 Company: {companyConfig?.brandName || 'Loading...'}</div>
+          <div>🎨 Brand Color: {companyConfig?.brandColor || 'Not Set'}</div>
           <div>🏬 API Stores: {apiStores.length}</div>
           <div>📋 Current Stores: {stores.length}</div>
           <div>📍 Store Names: {stores.map(s => s.name).join(', ')}</div>
@@ -671,17 +672,6 @@ const MultiCompanyCareerPage = () => {
               )}
             </button>
 
-            {/* Manual location option - especially helpful for Safari */}
-            <button
-              onClick={selectManualLocation}
-              className="manual-location-button"
-              disabled={loading}
-            >
-              <MapPin className="icon-sm" />
-              <span>Гараар байршил сонгох</span>
-            </button>
-
-
           </div>
 
           {/* Benefits Grid */}
@@ -691,7 +681,7 @@ const MultiCompanyCareerPage = () => {
                 <DollarSign className="icon" />
               </div>
               <div className="benefit-content">
-                <div className="benefit-title">₮2.2M - ₮2.8M сарын цалин</div>
+                <div className="benefit-title">Өрсөлдөхүйц сарын цалин</div>
                 <div className="benefit-subtitle">Цалингаа өдөртөө аваарай</div>
               </div>
             </div>
@@ -1033,6 +1023,10 @@ const MultiCompanyCareerPage = () => {
       )}
 
       <style jsx>{`
+        :root {
+          --brand-color: ${companyConfig?.brandColor || '#3b82f6'};
+          --brand-color-rgb: ${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'};
+        }
         .app-container {
           min-height: 100vh;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -1071,11 +1065,11 @@ const MultiCompanyCareerPage = () => {
         }
 
         .back-button {
-          background: rgba(59, 130, 246, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.1);
+          border: 1px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.2);
           border-radius: 8px;
           padding: 0.5rem;
-          color: var(--brand-color);
+          color: ${companyConfig?.brandColor || '#3b82f6'};
           cursor: pointer;
           transition: all 0.2s ease;
         }
@@ -1175,7 +1169,7 @@ const MultiCompanyCareerPage = () => {
           display: inline-flex;
           align-items: center;
           gap: 0.5rem;
-          background: rgba(59, 130, 246, 0.1);
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.1);
           backdrop-filter: blur(10px);
           color: #111827;
           padding: 0.5rem 1rem;
@@ -1183,32 +1177,35 @@ const MultiCompanyCareerPage = () => {
           font-size: 0.875rem;
           font-weight: 500;
           margin-bottom: 1.5rem;
-          border: 1px solid rgba(59, 130, 246, 0.15);
+          border: 1px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.15);
         }
 
         .hero-title {
-          font-size: 2.25rem;
+          font-size: 1.75rem;
           font-weight: 700;
           color: #111827;
           margin-bottom: 0.75rem;
-          line-height: 1.2;
+          line-height: 1.1;
           word-wrap: break-word;
           hyphens: auto;
           text-align: center;
           max-width: 100%;
+          letter-spacing: -0.02em;
         }
 
         @media (max-width: 480px) {
           .hero-title {
-            font-size: 1.875rem;
-            line-height: 1.3;
+            font-size: 1.5rem;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
           }
         }
 
         @media (max-width: 360px) {
           .hero-title {
-            font-size: 1.625rem;
-            line-height: 1.4;
+            font-size: 1.375rem;
+            line-height: 1.2;
+            letter-spacing: 0;
           }
         }
 
@@ -1225,7 +1222,7 @@ const MultiCompanyCareerPage = () => {
           border-radius: 16px;
           font-size: 0.8rem;
           font-weight: 500;
-          border: 1px solid rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.1);
         }
 
         .badge.green {
@@ -1245,14 +1242,14 @@ const MultiCompanyCareerPage = () => {
           font-weight: 700;
           font-size: 1.125rem;
           color: white;
-          background: linear-gradient(135deg, var(--brand-color) 0%, var(--brand-color) 100%);
+          background: linear-gradient(135deg, ${companyConfig?.brandColor || '#3b82f6'} 0%, ${companyConfig?.brandColor || '#3b82f6'} 100%);
           border: none;
           cursor: pointer;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 8px 16px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.3), 0 4px 8px rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.2);
           margin-bottom: 1rem;
           position: relative;
           overflow: hidden;
@@ -1328,9 +1325,9 @@ const MultiCompanyCareerPage = () => {
           font-weight: 500;
           font-size: 1rem;
           color: #374151;
-          background: rgba(59, 130, 246, 0.08);
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.08);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(59, 130, 246, 0.15);
+          border: 1px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.15);
           cursor: pointer;
           transition: all 0.2s ease;
           display: flex;
@@ -1348,8 +1345,8 @@ const MultiCompanyCareerPage = () => {
         }
 
         .manual-location-button:hover:not(:disabled) {
-          background: rgba(59, 130, 246, 0.12);
-          border-color: rgba(59, 130, 246, 0.25);
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.12);
+          border-color: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.25);
           transform: translateY(-1px);
         }
 
@@ -1419,11 +1416,11 @@ const MultiCompanyCareerPage = () => {
           display: flex;
           align-items: center;
           gap: 1rem;
-          background: rgba(59, 130, 246, 0.08);
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.08);
           backdrop-filter: blur(20px);
           border-radius: 16px;
           padding: 1.25rem;
-          border: 1px solid rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.1);
         }
 
         .benefit-icon {
@@ -1436,9 +1433,18 @@ const MultiCompanyCareerPage = () => {
           flex-shrink: 0;
         }
 
-        .benefit-icon.green { background: rgba(34, 197, 94, 0.15); }
-        .benefit-icon.blue { background: rgba(59, 130, 246, 0.15); }
-        .benefit-icon.purple { background: rgba(147, 51, 234, 0.15); }
+        .benefit-icon.green { 
+          background: rgba(34, 197, 94, 0.15); 
+          color: #22c55e;
+        }
+        .benefit-icon.blue { 
+          background: rgba(59, 130, 246, 0.15); 
+          color: #3b82f6;
+        }
+        .benefit-icon.purple { 
+          background: rgba(147, 51, 234, 0.15); 
+          color: #9333ea;
+        }
 
         .benefit-title {
           font-weight: 600;
@@ -1545,9 +1551,9 @@ const MultiCompanyCareerPage = () => {
         }
 
         .store-card.selected {
-          border-color: var(--brand-color);
+          border-color: ${companyConfig?.brandColor || '#3b82f6'};
           background: white;
-          box-shadow: 0 0 0 2px var(--brand-color), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 0 0 2px ${companyConfig?.brandColor || '#3b82f6'}, 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .store-header {
