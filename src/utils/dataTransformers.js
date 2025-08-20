@@ -1,17 +1,35 @@
 // src/utils/dataTransformers.js - FINAL FIX
 
 export const transformCompanyData = (apiData) => {
-  const companyConfig = apiData.companyConfig || {};
+  // Handle both direct company config and nested companyConfig
+  const companyConfig = {
+    ...(apiData.companyConfig || {}),
+    ...(apiData.companyId ? {
+      companyId: apiData.companyId,
+      name: apiData.name,
+      description: apiData.description,
+      photoUrl: apiData.photoUrl,
+      color: apiData.color,
+      companyAdvantages: apiData.companyAdvantages || [],
+      companyBenefits: apiData.companyBenefits || []
+    } : {})
+  };
+  
+  console.log('🏢 Transforming company config:', companyConfig);
   
   return {
-    companyId: companyConfig.companyId || apiData.companyId || 'company', // ✅ Use actual numeric ID
+    companyId: companyConfig.companyId || 'company',
     brandName: companyConfig.name || 'Company',
     subdomain: `${companyConfig.name || 'company'}.oneplace.hr`,
-    brandColor: '#3b82f6',
-    brandGradient: `linear-gradient(135deg, #0a1929 0%, #1e3a8a 25%, #1e40af 50%, #2563eb 75%, #3b82f6 100%)`,
+    brandColor: companyConfig.color || '#3b82f6',
+    brandGradient: companyConfig.color 
+      ? `linear-gradient(135deg, ${companyConfig.color}99 0%, ${companyConfig.color} 100%)`
+      : 'linear-gradient(135deg, #0a1929 0%, #1e3a8a 25%, #1e40af 50%, #2563eb 75%, #3b82f6 100%)',
     logo: companyConfig.name || 'Company',
     photoUrl: companyConfig.photoUrl,
-    description: companyConfig.description,
+    description: companyConfig.companyDescription || companyConfig.description || '',
+    companyAdvantages: companyConfig.companyAdvantages || [],
+    companyBenefits: companyConfig.companyBenefits || [],
     maxStoreSelection: 1,
     features: {
       hasShiftPreferences: true,
