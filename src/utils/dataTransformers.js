@@ -56,7 +56,7 @@ export const transformStoreData = (apiBranches) => {
   
   const transformedStores = apiBranches.map(branch => {
     console.log(`🏢 Processing branch: ${branch.branchName} (ID: ${branch.branchId})`);
-    console.log(`📍 Coordinates: ${branch.coordinates}`);
+    console.log('📍 Branch data:', branch);
     
     // Parse coordinates if they exist
     let lat = 47.9187; // Default Ulaanbaatar center
@@ -65,7 +65,14 @@ export const transformStoreData = (apiBranches) => {
     
     if (branch.coordinates && branch.coordinates !== null && branch.coordinates.trim() !== '') {
       try {
-        const coordParts = branch.coordinates.split(',').map(coord => coord.trim());
+        // Handle both string and array formats for coordinates
+        let coordParts = [];
+        if (Array.isArray(branch.coordinates)) {
+          coordParts = branch.coordinates;
+        } else {
+          coordParts = branch.coordinates.split(',').map(coord => coord.trim());
+        }
+        
         if (coordParts.length === 2) {
           const parsedLat = parseFloat(coordParts[0]);
           const parsedLng = parseFloat(coordParts[1]);
@@ -85,17 +92,19 @@ export const transformStoreData = (apiBranches) => {
     }
 
     // Transform jobs to positions
-    const positions = branch.jobs ? 
-      branch.jobs.map((job, index) => ({
-        id: job.jobId || `pos_${branch.branchId}_${index}`,
-        title: job.jobName || 'Position',
-        urgent: index === 0, // First job is urgent for demo
-        salaryRange: 'Цалин тохиролцоно',
-        description: `${job.jobName} ажлын байрны дэлгэрэнгүй мэдээлэл`,
-        requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар'],
-        storeId: branch.branchId,
-        positionId: job.jobId
-      })) : [];
+    const positions = branch.jobs && Array.isArray(branch.jobs) 
+      ? branch.jobs.map((job, index) => ({
+          id: job.jobId || `pos_${branch.branchId}_${index}`,
+          title: job.jobName || 'Position',
+          urgent: index === 0, // First job is urgent for demo
+          salaryRange: 'Цалин тохиролцоно',
+          description: `${job.jobName || 'Ажлын байр'} - дэлгэрэнгүй мэдээлэл`,
+          requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар'],
+          storeId: branch.branchId,
+          positionId: job.jobId,
+          branchName: branch.branchName
+        }))
+      : [];
 
     const transformedStore = {
       id: branch.branchId,
