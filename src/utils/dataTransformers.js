@@ -65,7 +65,7 @@ export const transformStoreData = (apiBranches) => {
     
     if (branch.coordinates && branch.coordinates !== null && branch.coordinates.trim() !== '') {
       try {
-        const coordParts = branch.coordinates.split(', ');
+        const coordParts = branch.coordinates.split(',').map(coord => coord.trim());
         if (coordParts.length === 2) {
           const parsedLat = parseFloat(coordParts[0]);
           const parsedLng = parseFloat(coordParts[1]);
@@ -92,7 +92,9 @@ export const transformStoreData = (apiBranches) => {
         urgent: index === 0, // First job is urgent for demo
         salaryRange: 'Цалин тохиролцоно',
         description: `${job.jobName} ажлын байрны дэлгэрэнгүй мэдээлэл`,
-        requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар']
+        requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар'],
+        storeId: branch.branchId,
+        positionId: job.jobId
       })) : [];
 
     const transformedStore = {
