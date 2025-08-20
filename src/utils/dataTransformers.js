@@ -7,11 +7,13 @@ export const transformCompanyData = (apiData) => {
     ...(apiData.companyId ? {
       companyId: apiData.companyId,
       name: apiData.name,
-      description: apiData.description,
+      // Note: prefer nested companyConfig description fields over root
+      description: (apiData.companyConfig && (apiData.companyConfig.companyDescription || apiData.companyConfig.description)) || apiData.description,
       photoUrl: apiData.photoUrl,
       color: apiData.color,
-      companyAdvantages: apiData.companyAdvantages || [],
-      companyBenefits: apiData.companyBenefits || []
+      // Prefer nested arrays from companyConfig; fall back to root-level arrays
+      companyAdvantages: (apiData.companyConfig && apiData.companyConfig.companyAdvantages) || apiData.companyAdvantages || [],
+      companyBenefits: (apiData.companyConfig && apiData.companyConfig.companyBenefits) || apiData.companyBenefits || []
     } : {})
   };
   

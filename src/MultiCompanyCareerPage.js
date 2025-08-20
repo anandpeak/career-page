@@ -660,19 +660,49 @@ const MultiCompanyCareerPage = () => {
     attemptGeolocation();
   };
   
-  // Manual location selection for Safari/iOS users
-  const selectManualLocation = () => {
-    // Default to Ulaanbaatar center
-    setUserLocation({ lat: 47.9187, lng: 106.9177 });
-    navigateTo('stores');
-  };
-
   const handleStoreClick = (store) => {
     setCurrentStore(store);
     setShowPositionModal(true);
   };
 
+  // Get translation with fallbacks
+  const getTranslation = (key) => {
+    const currentLanguage = language || 'mn';
+    
+    // First try to get translation from API data
+    if (companyData?.translations?.[currentLanguage]?.[key]) {
+      return companyData.translations[currentLanguage][key];
+    }
+    
+    // Fallback to company config if API data is not available
+    if (companyConfig?.translations?.[currentLanguage]?.[key]) {
+      return companyConfig.translations[currentLanguage][key];
+    }
+    
+    // Fallback to hardcoded translations if needed
+    const fallbackConfig = COMPANY_CONFIGS['gs25'];
+    if (fallbackConfig?.translations?.[currentLanguage]?.[key]) {
+      return fallbackConfig.translations[currentLanguage][key];
+    }
+    
+    // Debug logging if translation is not found
+    console.warn('🔍 Translation not found:', {
+      key,
+      language: currentLanguage,
+      hasCompanyData: !!companyData,
+      hasCompanyConfig: !!companyConfig,
+      availableKeys: companyData?.translations?.[currentLanguage] 
+        ? Object.keys(companyData.translations[currentLanguage])
+        : companyConfig?.translations?.[currentLanguage]
+          ? Object.keys(companyConfig.translations[currentLanguage])
+          : 'none'
+    });
+    
+    return key; // Return key as fallback
+  };
+
   const handlePositionSelect = (position) => {
+
     const storeWithPosition = {
       storeId: currentStore.id,
       storeName: currentStore.name,
@@ -733,41 +763,11 @@ const MultiCompanyCareerPage = () => {
       return false;
     } finally {
       setLoading(false);
+      navigateTo('stores');
     }
   };
 
-  const getTranslation = (key) => {
-    // Direct access to COMPANY_CONFIGS to ensure we get the translations
-    const gs25Config = COMPANY_CONFIGS['gs25'];
-    const currentLanguage = language || 'mn';
-    
-    // Simple direct translation access
-    if (gs25Config && gs25Config.translations && gs25Config.translations[currentLanguage] && gs25Config.translations[currentLanguage][key]) {
-      return gs25Config.translations[currentLanguage][key];
-    }
-    
-    // Fallback to Carrefour if needed
-    const carrefourConfig = COMPANY_CONFIGS['carrefour'];
-    if (carrefourConfig && carrefourConfig.translations && carrefourConfig.translations[currentLanguage] && carrefourConfig.translations[currentLanguage][key]) {
-      return carrefourConfig.translations[currentLanguage][key];
-    }
-    
-    // Debug logging
-    console.error('🔍 Translation failed for:', {
-      key,
-      language: currentLanguage,
-      gs25HasTranslations: !!(gs25Config?.translations?.[currentLanguage]),
-      carrefourHasTranslations: !!(carrefourConfig?.translations?.[currentLanguage]),
-      availableKeys: gs25Config?.translations?.[currentLanguage] ? Object.keys(gs25Config.translations[currentLanguage]) : 'none'
-    });
-    
-    return key; // Return key as fallback
-  };
-
-  // Dynamic styles based on company config
   const dynamicStyles = {
-    background: '#f5f5f5', // Grey background for main pages
-    '--brand-color': companyConfig.brandColor,
     '--brand-color-light': companyConfig.brandColor + '20',
     '--brand-color-medium': companyConfig.brandColor + '40'
   };
@@ -858,15 +858,20 @@ const MultiCompanyCareerPage = () => {
       {step === 'landing' && (
         <div className="page-content">
           <div className="hero-section">
-            <div className="trending-badge">
-              <Zap className="icon-sm" />
-              <span>{getTranslation('trendingBadge')}</span>
-            </div>
-            <h1 className="hero-title">{companyConfig.brandName}{getTranslation('heroTitleSuffix')}</h1>
+            <h1 className="hero-title">{companyConfig.brandName}</h1>
+            <p className="hero-subtitle">{companyConfig.description || getTranslation('subtitle')}</p>
 
             <div className="badges">
-              <span className="badge green">{getTranslation('badgeGreen')}</span>
-              <span className="badge pink">{getTranslation('badgePink')}</span>
+              {(companyConfig.companyAdvantages || []).length > 0 ? (
+                (companyConfig.companyAdvantages || []).map((adv, idx) => (
+                  <span key={idx} className={`badge ${idx % 2 === 0 ? 'green' : 'pink'}`}>{adv}</span>
+                ))
+              ) : (
+                <>
+                  <span className="badge green">{getTranslation('badgeGreen')}</span>
+                  <span className="badge pink">{getTranslation('badgePink')}</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -894,35 +899,50 @@ const MultiCompanyCareerPage = () => {
 
           {/* Benefits Grid */}
           <div className="benefits-grid">
-            <div className="benefit-card">
-              <div className="benefit-icon green">
-                <DollarSign className="icon" />
-              </div>
-              <div className="benefit-content">
-                <div className="benefit-title">{getTranslation('salaryTitle')}</div>
-                <div className="benefit-subtitle">{getTranslation('salarySubtitle')}</div>
-              </div>
-            </div>
-            
-            <div className="benefit-card">
-              <div className="benefit-icon blue">
-                <Clock className="icon" />
-              </div>
-              <div className="benefit-content">
-                <div className="benefit-title">{getTranslation('flexibleHours')}</div>
-                <div className="benefit-subtitle">{getTranslation('flexibleSubtitle')}</div>
-              </div>
-            </div>
-            
-            <div className="benefit-card">
-              <div className="benefit-icon purple">
-                <Briefcase className="icon" />
-              </div>
-              <div className="benefit-content">
-                <div className="benefit-title">{getTranslation('noExperience')}</div>
-                <div className="benefit-subtitle">{getTranslation('noExperienceSubtitle')}</div>
-              </div>
-            </div>
+            {(companyConfig.companyBenefits || []).length > 0 ? (
+              (companyConfig.companyBenefits || []).map((benefit, idx) => (
+                <div key={idx} className="benefit-card">
+                  <div className={`benefit-icon ${['green','blue','purple'][idx % 3]}`}>
+                    <Star className="icon" />
+                  </div>
+                  <div className="benefit-content">
+                    <div className="benefit-title">{benefit}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="benefit-card">
+                  <div className="benefit-icon green">
+                    <DollarSign className="icon" />
+                  </div>
+                  <div className="benefit-content">
+                    <div className="benefit-title">{getTranslation('salaryTitle')}</div>
+                    <div className="benefit-subtitle">{getTranslation('salarySubtitle')}</div>
+                  </div>
+                </div>
+                
+                <div className="benefit-card">
+                  <div className="benefit-icon blue">
+                    <Clock className="icon" />
+                  </div>
+                  <div className="benefit-content">
+                    <div className="benefit-title">{getTranslation('flexibleHours')}</div>
+                    <div className="benefit-subtitle">{getTranslation('flexibleSubtitle')}</div>
+                  </div>
+                </div>
+                
+                <div className="benefit-card">
+                  <div className="benefit-icon purple">
+                    <Briefcase className="icon" />
+                  </div>
+                  <div className="benefit-content">
+                    <div className="benefit-title">{getTranslation('noExperience')}</div>
+                    <div className="benefit-subtitle">{getTranslation('noExperienceSubtitle')}</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -1273,6 +1293,7 @@ const MultiCompanyCareerPage = () => {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
           position: relative;
           color: #111827;
+          background-color: #f5f5f5;
         }
 
         .header {
@@ -1394,11 +1415,13 @@ const MultiCompanyCareerPage = () => {
 
         .page-content {
           padding: 1.5rem 1rem;
-          max-width: 480px;
-          margin: 0 auto;
+          max-width: none;
+          width: 100%;
+          margin: 0;
           position: relative;
           z-index: 1;
           background-color: #f5f5f5;
+          min-height: calc(100vh - 64px);
         }
 
         .hero-section {
