@@ -117,7 +117,7 @@ export const transformStoreData = (apiBranches) => {
           id: job.jobId || `pos_${branch.branchId}_${index}`,
           title: job.jobName || 'Position',
           urgent: index === 0, // First job is urgent for demo
-          salaryRange: 'Цалин тохиролцоно',
+          salaryRange: job.salary ? `₮${parseInt(job.salary).toLocaleString()}` : 'Цалин тохиролцоно',
           description: `${job.jobName || 'Ажлын байр'} - дэлгэрэнгүй мэдээлэл`,
           requirements: ['Туршлага шаардагдахгүй', 'Эерэг хандлага', 'Багаар ажиллах чадвар'],
           storeId: branch.branchId,
