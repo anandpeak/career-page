@@ -1187,7 +1187,11 @@ const MultiCompanyCareerPage = () => {
                   </div>
                   
                   <button
-  onClick={() => {
+  onClick={(e) => {
+    // Prevent default behavior and ensure Safari compatibility
+    e.preventDefault();
+    e.stopPropagation();
+    
     // Get company ID and job ID from API data
     const companyId = companyConfig.companyId; // 316
     const jobId = selectedPositions[0]?.positionId; // 2003
@@ -1201,8 +1205,23 @@ const MultiCompanyCareerPage = () => {
     
     console.log('🌐 Opening URL:', chatUrl);
     
-    // Open in new tab/window
-    window.open(chatUrl, '_blank');
+    // Safari-compatible window opening
+    try {
+      // Create a temporary link element for Safari compatibility
+      const link = document.createElement('a');
+      link.href = chatUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Add to DOM temporarily for Safari
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to open link:', error);
+      // Fallback to window.open
+      window.open(chatUrl, '_blank', 'noopener,noreferrer');
+    }
     
     // Optional: Also track the application submission in your analytics
     if (api && typeof handleApiApplicationSubmit === 'function') {
@@ -1238,8 +1257,17 @@ const MultiCompanyCareerPage = () => {
 
       {/* Position Selection Modal */}
       {showPositionModal && currentStore && (
-        <div className="modal-overlay" onClick={() => setShowPositionModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="modal-overlay" 
+          onClick={(e) => {
+            e.preventDefault();
+            setShowPositionModal(false);
+          }}
+        >
+          <div className="modal-content" onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}>
             <div className="modal-header">
               <h3 className="modal-title">{currentStore.name}</h3>
               <button
@@ -1261,7 +1289,11 @@ const MultiCompanyCareerPage = () => {
                   return (
                     <div
                       key={position.id}
-                      onClick={() => handlePositionSelect(position)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePositionSelect(position);
+                      }}
                       className={`position-card ${isSelected ? 'selected' : ''}`}
                     >
                       <div className="position-header">
@@ -1305,6 +1337,8 @@ const MultiCompanyCareerPage = () => {
           position: sticky;
           top: 0;
           z-index: 1000;
+          -webkit-transform: translateZ(0);
+          transform: translateZ(0);
         }
 
         .header-content {
@@ -1334,6 +1368,8 @@ const MultiCompanyCareerPage = () => {
           color: ${companyConfig?.brandColor || '#3b82f6'};
           cursor: pointer;
           transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-appearance: none;
         }
 
         .back-button:hover {
@@ -1377,6 +1413,8 @@ const MultiCompanyCareerPage = () => {
           font-size: 0.875rem;
           cursor: pointer;
           transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-appearance: none;
         }
 
         .language-selector {
@@ -1519,6 +1557,11 @@ const MultiCompanyCareerPage = () => {
           overflow: hidden;
           letter-spacing: 0.5px;
           min-height: 64px;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
+          -webkit-appearance: none;
         }
 
         .cta-button::before {
@@ -1808,6 +1851,10 @@ const MultiCompanyCareerPage = () => {
           border: 1px solid #e5e7eb;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
           margin-bottom: 1rem;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
         }
 
         .store-card:hover {
@@ -1978,10 +2025,24 @@ const MultiCompanyCareerPage = () => {
           justify-content: center;
           gap: 0.5rem;
           transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
         }
 
-        .continue-button:hover {
+        .continue-button:hover:not(:disabled) {
           transform: translateY(-1px);
+        }
+        
+        .continue-button:active {
+          transform: translateY(0px);
+        }
+        
+        .continue-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          pointer-events: none;
         }
 
         .modal-overlay {
@@ -2046,6 +2107,10 @@ const MultiCompanyCareerPage = () => {
           padding: 1rem;
           cursor: pointer;
           transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          user-select: none;
         }
 
         .position-card:hover {
