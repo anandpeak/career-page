@@ -1245,7 +1245,7 @@ const MultiCompanyCareerPage = () => {
   disabled={loading || !selectedPositions.length}
 >
   <MessageSquare className="icon" />
-  {getTranslation('Interview with AI')}
+  Шууд ярилцлагад орох
   <Zap className="icon" />
 </button>
                 </div>
