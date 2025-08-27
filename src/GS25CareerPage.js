@@ -559,31 +559,32 @@ const MultiCompanyCareerPage = () => {
           {/* Interactive Leaflet Map */}
           <div className="map-container">
             {userLocation ? (
-              <MapContainer
-                center={[userLocation.lat, userLocation.lng]}
-                zoom={13}
-                scrollWheelZoom={true}
-                style={{ 
-                  height: '100%', 
-                  width: '100%', 
-                  borderRadius: '16px',
-                  zIndex: 1
-                }}
-                attributionControl={true}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-                />
-                
-                {/* User location marker */}
-                <Marker position={[userLocation.lat, userLocation.lng]}>
-                  <Popup>
-                    <div style={{ textAlign: 'center', color: '#333' }}>
-                      <strong>📍 Таны байршил</strong>
-                    </div>
-                  </Popup>
-                </Marker>
+              <>
+                <MapContainer
+                  center={[userLocation.lat, userLocation.lng]}
+                  zoom={13}
+                  scrollWheelZoom={true}
+                  style={{ 
+                    height: '100%', 
+                    width: '100%', 
+                    borderRadius: '16px',
+                    zIndex: 1
+                  }}
+                  attributionControl={true}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+                  />
+                  
+                  {/* User location marker */}
+                  <Marker position={[userLocation.lat, userLocation.lng]}>
+                    <Popup>
+                      <div style={{ textAlign: 'center', color: '#333' }}>
+                        <strong>📍 Таны байршил</strong>
+                      </div>
+                    </Popup>
+                  </Marker>
                 
                 {/* Store markers */}
                 {stores.map(store => {
@@ -658,7 +659,28 @@ const MultiCompanyCareerPage = () => {
                     </Marker>
                   );
                 })}
-              </MapContainer>
+                </MapContainer>
+                
+                {/* Location button to center map on user location */}
+                <button
+                  onClick={() => {
+                    if (userLocation) {
+                      // Find the map container and trigger a map center update
+                      const mapContainer = document.querySelector('.leaflet-container');
+                      if (mapContainer && mapContainer._leaflet_map) {
+                        mapContainer._leaflet_map.setView([userLocation.lat, userLocation.lng], 15, {
+                          animate: true,
+                          duration: 0.5
+                        });
+                      }
+                    }
+                  }}
+                  className="location-button"
+                  title="Таны байршил"
+                >
+                  <Navigation className="icon-sm" />
+                </button>
+              </>
             ) : (
               <div className="map-placeholder">
                 {loading ? (
@@ -1287,6 +1309,39 @@ const MultiCompanyCareerPage = () => {
         .map-container .leaflet-control-attribution {
           background: rgba(255, 255, 255, 0.8) !important;
           font-size: 10px !important;
+        }
+
+        .location-button {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          z-index: 1000;
+          background: white;
+          border: 2px solid rgba(59, 130, 246, 0.3);
+          border-radius: 50%;
+          width: 44px;
+          height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #3b82f6;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          transition: all 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          -webkit-user-select: none;
+          user-select: none;
+        }
+
+        .location-button:hover {
+          background: rgba(59, 130, 246, 0.1);
+          border-color: #3b82f6;
+          transform: scale(1.05);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .location-button:active {
+          transform: scale(0.95);
         }
 
         .map-placeholder {
