@@ -1551,12 +1551,12 @@ const MultiCompanyCareerPage = () => {
 
         .badge.green {
           background: rgba(34, 197, 94, 0.1);
-          color: rgba(134, 239, 172, 0.9);
+          color: rgba(251, 182, 206, 0.9);
         }
 
         .badge.pink {
           background: rgba(236, 72, 153, 0.1);
-          color: rgba(251, 182, 206, 0.9);
+          color: rgba(134, 239, 172, 0.9);
         }
 
         .cta-button {

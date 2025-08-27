@@ -131,7 +131,7 @@ export const transformStoreData = (apiBranches) => {
       name: branch.branchName || `Салбар ${branch.branchId}`,
       lat: lat,
       lng: lng,
-      address: branch.branchName || 'Address not provided',
+      address: branch.address || branch.branchAddress || branch.location || 'Address not provided',
       positions: positions,
       hasValidCoordinates: hasValidCoordinates,
       // Add these for compatibility
