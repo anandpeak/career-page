@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart, ArrowLeft, ArrowRight, X, Map, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -350,6 +350,9 @@ const MultiCompanyCareerPage = () => {
   const [locationError, setLocationError] = useState('');
   const [language, setLanguage] = useState('mn');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  // Map reference for location button functionality
+  const mapRef = useRef(null);
 
   // Fix default marker icon for Leaflet
   useEffect(() => {
@@ -1007,19 +1010,32 @@ const MultiCompanyCareerPage = () => {
                         zIndex: 1
                       }}
                       attributionControl={false}
+                      ref={mapRef}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
                       
-                      {/* User location marker */}
-                      <Marker position={[userLocation.lat, userLocation.lng]}>
-                        <Popup>
-                          <div style={{ textAlign: 'center', color: '#333' }}>
-                            <strong>📍 {getTranslation('yourLocation')}</strong>
-                          </div>
-                        </Popup>
-                      </Marker>
+                      {/* User location marker with custom icon containing text */}
+                      <Marker 
+                        position={[userLocation.lat, userLocation.lng]}
+                        icon={L.divIcon({
+                          className: 'custom-user-location-marker',
+                          html: `
+                            <div class="user-location-pin">
+                              <div class="pin-body">
+                                <div class="location-text">
+                                  <div class="text-line">Таны</div>
+                                  <div class="text-line">байршил</div>
+                                </div>
+                              </div>
+                              <div class="pin-tip"></div>
+                            </div>
+                          `,
+                          iconSize: [60, 60],
+                          iconAnchor: [30, 60]
+                        })}
+                      />
                     
                     {/* Store markers - only show stores with valid coordinates */}
                     {stores.filter(store => store.hasValidCoordinates).map(store => {
@@ -1099,19 +1115,16 @@ const MultiCompanyCareerPage = () => {
                     {/* Location button to center map on user location */}
                     <button
                       onClick={() => {
-                        if (userLocation) {
-                          // Find the map container and trigger a map center update
-                          const mapContainer = document.querySelector('.leaflet-container');
-                          if (mapContainer && mapContainer._leaflet_map) {
-                            mapContainer._leaflet_map.setView([userLocation.lat, userLocation.lng], 15, {
-                              animate: true,
-                              duration: 0.5
-                            });
-                          }
+                        if (userLocation && mapRef.current) {
+                          // Use the map reference to center on user location
+                          mapRef.current.setView([userLocation.lat, userLocation.lng], 15, {
+                            animate: true,
+                            duration: 0.5
+                          });
                         }
                       }}
                       className="location-button"
-                      title={getTranslation('yourLocation')}
+                      title="Миний байршил"
                     >
                       <Navigation className="icon-sm" />
                     </button>
@@ -1863,6 +1876,61 @@ const MultiCompanyCareerPage = () => {
           transform: scale(0.95);
         }
 
+        .custom-user-location-marker {
+          background: transparent !important;
+          border: none !important;
+        }
+
+        .user-location-pin {
+          position: relative;
+          width: 60px;
+          height: 60px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .pin-body {
+          width: 42px;
+          height: 42px;
+          background: ${companyConfig?.brandColor || '#3b82f6'};
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+          border: 2px solid white;
+          position: relative;
+          z-index: 2;
+        }
+
+        .location-text {
+          transform: rotate(45deg);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          height: 100%;
+        }
+
+        .text-line {
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: white;
+          line-height: 0.9;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .pin-tip {
+          position: absolute;
+          bottom: 12px;
+          width: 0;
+          height: 0;
+          z-index: 1;
+        }
+
         .map-placeholder {
           text-align: center;
           color: rgba(226, 232, 240, 0.8);
@@ -2320,6 +2388,21 @@ const MultiCompanyCareerPage = () => {
           .urgent-badge {
             font-size: 0.7rem;
             padding: 0.2rem 0.4rem;
+          }
+
+          .user-location-pin {
+            width: 55px;
+            height: 55px;
+          }
+
+          .pin-body {
+            width: 38px;
+            height: 38px;
+          }
+
+          .text-line {
+            font-size: 0.6rem;
+            font-weight: 600;
           }
         }
       `}</style>

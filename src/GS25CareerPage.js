@@ -1,49 +1,11 @@
 import 'leaflet/dist/leaflet.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Clock, DollarSign, Users, ChevronRight, User, Briefcase, Star, Navigation, Search, Globe, MessageSquare, Zap, TrendingUp, Award, Heart, ArrowLeft, X, Map, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
 // Company Configuration System
 const COMPANY_CONFIGS = {
-  'gs25': {
-    companyId: 'gs25',
-    brandName: 'GS25',
-    subdomain: 'gs25.oneplace.hr',
-    brandColor: '#3b82f6',
-    brandGradient: 'linear-gradient(135deg, #0a1929 0%, #1e3a8a 25%, #1e40af 50%, #2563eb 75%, #3b82f6 100%)',
-    logo: 'GS25',
-    maxStoreSelection: 1,
-    features: {
-      hasShiftPreferences: true,
-      requiresExperience: true,
-      hasUrgentPositions: true
-    },
-    translations: {
-      mn: {
-        title: 'GS25-д ажиллах',
-        subtitle: '300+ дэлгүүрт ажлын байр нээлттэй',
-        findNearby: 'Гэрт ойр ажилд оръё',
-        selectStores: 'Нэг ажлын байр сонгоорой',
-        selectPosition: 'Ажлын байр сонгох',
-        availablePositions: 'Нээлттэй ажлын байрууд',
-        apply: 'Ажилд оръё',
-        urgent: 'Яаралтай',
-        back: 'Буцах'
-      },
-      en: {
-        title: 'Work at GS25',
-        subtitle: '300+ stores with open positions',
-        findNearby: 'Find Stores Near Me',
-        selectStores: 'Select 1 position',
-        selectPosition: 'Select Position',
-        availablePositions: 'Available Positions',
-        apply: 'Apply',
-        urgent: 'Urgent',
-        back: 'Back'
-      }
-    }
-  },
   'carrefour': {
     companyId: 'carrefour',
     brandName: 'Carrefour',
@@ -86,47 +48,6 @@ const COMPANY_CONFIGS = {
 
 // Mock company data - replace with API calls
 const MOCK_COMPANY_DATA = {
-  'gs25': {
-    stores: [
-      { 
-        id: 1, 
-        name: 'GS25 Zaisan', 
-        lat: 47.8864, 
-        lng: 106.9057, 
-        address: 'Zaisan Street 12',
-        managerId: 'mgr_001',
-        positions: [
-          { id: 'pos1', title: 'Кассчин', urgent: true, salaryRange: '₮1.8M-2.2M' },
-          { id: 'pos2', title: 'Борлуулагч', urgent: false, salaryRange: '₮1.6M-2.0M' },
-          { id: 'pos3', title: 'Ахлах кассчин', urgent: true, salaryRange: '₮2.2M-2.8M' }
-        ]
-      },
-      { 
-        id: 2, 
-        name: 'GS25 Central Tower', 
-        lat: 47.9187, 
-        lng: 106.9177, 
-        address: 'Central Tower, Ground Floor',
-        managerId: 'mgr_003',
-        positions: [
-          { id: 'pos4', title: 'Кассчин', urgent: false, salaryRange: '₮1.8M-2.2M' },
-          { id: 'pos5', title: 'Агуулахын ажилчин', urgent: true, salaryRange: '₮1.7M-2.1M' }
-        ]
-      },
-      { 
-        id: 3, 
-        name: 'GS25 Shangri-La', 
-        lat: 47.9167, 
-        lng: 106.9167, 
-        address: 'Shangri-La Mall, 1st Floor',
-        managerId: 'mgr_002',
-        positions: [
-          { id: 'pos6', title: 'Борлуулагч', urgent: false, salaryRange: '₮1.6M-2.0M' },
-          { id: 'pos7', title: 'Шөнийн ээлж', urgent: true, salaryRange: '₮2.0M-2.5M' }
-        ]
-      }
-    ]
-  },
   'carrefour': {
     stores: [
       { 
@@ -164,11 +85,11 @@ const LANGUAGES = [
 ];
 
 const MultiCompanyCareerPage = () => {
-  // Get company config based on subdomain or default to gs25
+  // Get company config based on subdomain
   const getCompanyFromSubdomain = () => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
-    return COMPANY_CONFIGS[subdomain] || COMPANY_CONFIGS['gs25'];
+    return COMPANY_CONFIGS[subdomain] || null;
   };
 
   const [companyConfig, setCompanyConfig] = useState(getCompanyFromSubdomain());
@@ -184,6 +105,9 @@ const MultiCompanyCareerPage = () => {
   const [locationError, setLocationError] = useState('');
   const [language, setLanguage] = useState('mn');
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  // Map reference for location button functionality
+  const mapRef = useRef(null);
 
   // Fix default marker icon for Leaflet
   useEffect(() => {
@@ -213,13 +137,22 @@ const MultiCompanyCareerPage = () => {
 
   // Load company data
   useEffect(() => {
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
-    setStores(companyData.stores);
-    // Reset selections when switching companies
-    setSelectedStores([]);
-    setSelectedPositions([]);
-    setCurrentStore(null);
-    setShowPositionModal(false);
+    if (companyConfig && MOCK_COMPANY_DATA[companyConfig.companyId]) {
+      const companyData = MOCK_COMPANY_DATA[companyConfig.companyId];
+      setStores(companyData.stores);
+      // Reset selections when switching companies
+      setSelectedStores([]);
+      setSelectedPositions([]);
+      setCurrentStore(null);
+      setShowPositionModal(false);
+    } else {
+      // No data available, clear stores
+      setStores([]);
+      setSelectedStores([]);
+      setSelectedPositions([]);
+      setCurrentStore(null);
+      setShowPositionModal(false);
+    }
   }, [companyConfig]);
 
   // Enhanced location handling for Safari/iOS
@@ -227,7 +160,13 @@ const MultiCompanyCareerPage = () => {
     setLoading(true);
     setLocationError('');
     
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
+    if (!companyConfig || !MOCK_COMPANY_DATA[companyConfig.companyId]) {
+      setLocationError('Компанийн мэдээлэл олдохгүй байна');
+      setLoading(false);
+      return;
+    }
+
+    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId];
     setStores(companyData.stores);
     
     // Check if geolocation is supported
@@ -290,7 +229,12 @@ const MultiCompanyCareerPage = () => {
   
   // Manual location selection for Safari/iOS users
   const selectManualLocation = () => {
-    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId] || MOCK_COMPANY_DATA['gs25'];
+    if (!companyConfig || !MOCK_COMPANY_DATA[companyConfig.companyId]) {
+      setLocationError('Компанийн мэдээлэл олдохгүй байна');
+      return;
+    }
+    
+    const companyData = MOCK_COMPANY_DATA[companyConfig.companyId];
     setStores(companyData.stores);
     // Default to Ulaanbaatar center
     setUserLocation({ lat: 47.9187, lng: 106.9177 });
@@ -349,16 +293,115 @@ const MultiCompanyCareerPage = () => {
   };
 
   const getTranslation = (key) => {
+    if (!companyConfig || !companyConfig.translations) return key;
     return companyConfig.translations[language][key] || key;
   };
 
   // Dynamic styles based on company config
-  const dynamicStyles = {
+  const dynamicStyles = companyConfig ? {
     background: companyConfig.brandGradient,
     '--brand-color': companyConfig.brandColor,
     '--brand-color-light': companyConfig.brandColor + '20',
     '--brand-color-medium': companyConfig.brandColor + '40'
+  } : {
+    background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+    '--brand-color': '#64748b',
+    '--brand-color-light': '#64748b20',
+    '--brand-color-medium': '#64748b40'
   };
+
+  // If no company config is found, show error message
+  if (!companyConfig) {
+    return (
+      <div className="app-container" style={dynamicStyles}>
+        <div className="header">
+          <div className="header-content">
+            <div className="header-left">
+              <div className="logo" style={{ background: '#64748b' }}>
+                ?
+              </div>
+              <span className="header-title">Компани олдохгүй</span>
+            </div>
+          </div>
+        </div>
+        <div className="page-content">
+          <div className="hero-section">
+            <h1 className="hero-title">Компанийн мэдээлэл олдохгүй байна</h1>
+            <p className="hero-subtitle">Таны хандсан хаяг буруу эсвэл компани бүртгэгдээгүй байна.</p>
+          </div>
+        </div>
+        <style>{`
+          .app-container {
+            min-height: 100vh;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+          }
+          .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+          }
+          .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+          }
+          .logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+          }
+          .header-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+          }
+          .page-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+          }
+          .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+          }
+          .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+          .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container" style={dynamicStyles}>
@@ -571,20 +614,33 @@ const MultiCompanyCareerPage = () => {
                     zIndex: 1
                   }}
                   attributionControl={true}
+                  ref={mapRef}
                 >
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
                   />
                   
-                  {/* User location marker */}
-                  <Marker position={[userLocation.lat, userLocation.lng]}>
-                    <Popup>
-                      <div style={{ textAlign: 'center', color: '#333' }}>
-                        <strong>📍 Таны байршил</strong>
-                      </div>
-                    </Popup>
-                  </Marker>
+                  {/* User location marker with custom icon containing text */}
+                  <Marker 
+                    position={[userLocation.lat, userLocation.lng]}
+                    icon={L.divIcon({
+                      className: 'custom-user-location-marker',
+                      html: `
+                        <div class="user-location-pin">
+                          <div class="pin-body">
+                            <div class="location-text">
+                              <div class="text-line">Таны</div>
+                              <div class="text-line">байршил</div>
+                            </div>
+                          </div>
+                          <div class="pin-tip"></div>
+                        </div>
+                      `,
+                      iconSize: [60, 60],
+                      iconAnchor: [30, 60]
+                    })}
+                  />
                 
                 {/* Store markers */}
                 {stores.map(store => {
@@ -664,19 +720,16 @@ const MultiCompanyCareerPage = () => {
                 {/* Location button to center map on user location */}
                 <button
                   onClick={() => {
-                    if (userLocation) {
-                      // Find the map container and trigger a map center update
-                      const mapContainer = document.querySelector('.leaflet-container');
-                      if (mapContainer && mapContainer._leaflet_map) {
-                        mapContainer._leaflet_map.setView([userLocation.lat, userLocation.lng], 15, {
-                          animate: true,
-                          duration: 0.5
-                        });
-                      }
+                    if (userLocation && mapRef.current) {
+                      // Use the map reference to center on user location
+                      mapRef.current.setView([userLocation.lat, userLocation.lng], 15, {
+                        animate: true,
+                        duration: 0.5
+                      });
                     }
                   }}
                   className="location-button"
-                  title="Таны байршил"
+                  title="Миний байршил"
                 >
                   <Navigation className="icon-sm" />
                 </button>
@@ -1344,6 +1397,61 @@ const MultiCompanyCareerPage = () => {
           transform: scale(0.95);
         }
 
+        .custom-user-location-marker {
+          background: transparent !important;
+          border: none !important;
+        }
+
+        .user-location-pin {
+          position: relative;
+          width: 60px;
+          height: 60px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .pin-body {
+          width: 42px;
+          height: 42px;
+          background: #3b82f6;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+          border: 2px solid white;
+          position: relative;
+          z-index: 2;
+        }
+
+        .location-text {
+          transform: rotate(45deg);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          height: 100%;
+        }
+
+        .text-line {
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: white;
+          line-height: 0.9;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .pin-tip {
+          position: absolute;
+          bottom: 12px;
+          width: 0;
+          height: 0;
+          z-index: 1;
+        }
+
         .map-placeholder {
           text-align: center;
           color: rgba(226, 232, 240, 0.8);
@@ -1903,6 +2011,21 @@ const MultiCompanyCareerPage = () => {
           .location-error-text {
             font-size: 0.8rem;
             padding: 0.625rem;
+          }
+
+          .user-location-pin {
+            width: 55px;
+            height: 55px;
+          }
+
+          .pin-body {
+            width: 38px;
+            height: 38px;
+          }
+
+          .text-line {
+            font-size: 0.6rem;
+            font-weight: 600;
           }
         }
       `}</style>
