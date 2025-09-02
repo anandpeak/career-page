@@ -519,8 +519,17 @@ const MultiCompanyCareerPage = () => {
     const isAndroid = /Android/.test(userAgent);
     const isChrome = /Chrome/.test(userAgent);
     const isMobile = /Mobi|Android/i.test(userAgent);
+    const isFacebookBrowser = /FBAV|FB_IAB|FB\[|MessengerForiOS|Instagram/.test(userAgent);
     
-    console.log('📱 Device detection:', { isSafari, isIOS, isAndroid, isChrome, isMobile });
+    console.log('📱 Device detection:', { isSafari, isIOS, isAndroid, isChrome, isMobile, isFacebookBrowser });
+    
+    // Facebook browser doesn't support reliable geolocation - provide immediate fallback
+    if (isFacebookBrowser) {
+      console.log('🔒 Facebook browser detected - geolocation restricted');
+      setLocationError('📱 Facebook апп дотроос байршил тодорхойлох боломжгүй байна. Доорх товчоор бүх дэлгүүрийг харж болно.');
+      setLoading(false);
+      return;
+    }
     
     // Device-specific timeout and options
     let timeoutDuration = 15000; // Default 15 seconds
@@ -897,6 +906,18 @@ const MultiCompanyCareerPage = () => {
                 </>
               )}
             </button>
+
+            {/* Manual location selection for Facebook browser or location errors */}
+            {(locationError || /FBAV|FB_IAB|FB\[|MessengerForiOS|Instagram/.test(navigator.userAgent)) && (
+              <button
+                onClick={() => navigateTo('stores')}
+                className="cta-button secondary-action-btn"
+                style={{ marginTop: '0.75rem' }}
+              >
+                <span>Бүх дэлгүүр харах</span>
+                <ArrowRight className="icon-right" />
+              </button>
+            )}
 
           </div>
 
@@ -1659,6 +1680,20 @@ const MultiCompanyCareerPage = () => {
 
         .location-buttons {
           margin-bottom: 2rem;
+        }
+
+        .cta-button.secondary-action-btn {
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.1);
+          color: ${companyConfig?.brandColor || '#3b82f6'};
+          border: 2px solid rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.3);
+          padding: 1rem 2rem;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+
+        .cta-button.secondary-action-btn:hover:not(:disabled) {
+          background: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.15);
+          border-color: rgba(${companyConfig?.brandColor ? companyConfig.brandColor.replace('#', '').match(/.{2}/g).map(hex => parseInt(hex, 16)).join(', ') : '59, 130, 246'}, 0.5);
         }
 
         .manual-location-button {
