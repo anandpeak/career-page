@@ -500,6 +500,52 @@ const MultiCompanyCareerPage = () => {
     }
   };
 
+  // Function to open page in external browser
+  const openInExternalBrowser = () => {
+    const currentUrl = window.location.href;
+    
+    // Check if user is on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    if (isIOS) {
+      // For iOS, try multiple URL schemes to open in Safari or Chrome
+      const schemes = [
+        `googlechrome://${currentUrl.replace(/^https?:\/\//, '')}`, // Chrome iOS
+        `safari-${currentUrl}`, // Safari
+        currentUrl // Fallback
+      ];
+      
+      let attemptIndex = 0;
+      const tryNextScheme = () => {
+        if (attemptIndex < schemes.length) {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = schemes[attemptIndex];
+          document.body.appendChild(iframe);
+          
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+            attemptIndex++;
+            if (attemptIndex < schemes.length) {
+              tryNextScheme();
+            }
+          }, 1000);
+        }
+      };
+      
+      tryNextScheme();
+    } else {
+      // For Android/other platforms, try to open in external browser
+      const intent = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      window.location.href = intent;
+      
+      // Fallback after delay
+      setTimeout(() => {
+        window.open(currentUrl, '_blank');
+      }, 1000);
+    }
+  };
+
   // Enhanced location handling for all devices including Android
   const getUserLocation = async () => {
     setLoading(true);
@@ -889,7 +935,15 @@ const MultiCompanyCareerPage = () => {
 
           <div className="location-buttons">
             <button
-              onClick={getUserLocation}
+              onClick={() => {
+                // Check if user is in Facebook browser
+                const isFacebookBrowser = /FBAV|FB_IAB|FB\[|MessengerForiOS|Instagram/.test(navigator.userAgent);
+                if (isFacebookBrowser) {
+                  openInExternalBrowser();
+                } else {
+                  getUserLocation();
+                }
+              }}
               className={`cta-button main-action-btn ${loading ? 'loading' : ''}`}
               disabled={loading}
             >
@@ -900,9 +954,19 @@ const MultiCompanyCareerPage = () => {
                 </>
               ) : (
                 <>
-                  <MapPin className="icon-left" />
-                  <span>{getTranslation('findNearby')}</span>
-                  <ArrowRight className="icon-right" />
+                  {/FBAV|FB_IAB|FB\[|MessengerForiOS|Instagram/.test(navigator.userAgent) ? (
+                    <>
+                      <MapPin className="icon-left" />
+                      <span>Safari/Chrome дээр нээх</span>
+                      <ArrowRight className="icon-right" />
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="icon-left" />
+                      <span>{getTranslation('findNearby')}</span>
+                      <ArrowRight className="icon-right" />
+                    </>
+                  )}
                 </>
               )}
             </button>
@@ -914,7 +978,7 @@ const MultiCompanyCareerPage = () => {
                 className="cta-button secondary-action-btn"
                 style={{ marginTop: '0.75rem' }}
               >
-                <span>Бүх дэлгүүр харах</span>
+                <span>Бүх салбар харах</span>
                 <ArrowRight className="icon-right" />
               </button>
             )}
