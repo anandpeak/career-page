@@ -595,7 +595,7 @@ const MultiCompanyCareerPage = () => {
       {step === 'stores' && (
         <div className="page-content">
           <div className="section-header">
-            <h2 className="section-title">Таны ойролцоох дэлгүүрүүд</h2>
+            <h2 className="section-title">Таны ойролцоох салбарууд</h2>
             <p className="section-subtitle">{getTranslation('selectStores')}</p>
           </div>
 
