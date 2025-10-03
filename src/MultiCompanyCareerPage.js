@@ -1319,9 +1319,11 @@ const MultiCompanyCareerPage = () => {
     console.log('🔗 Redirecting to AI interview:', { companyId, jobId });
     console.log('🏢 Company:', companyConfig.brandName);
     console.log('💼 Job:', selectedPositions[0]?.positionTitle);
-    
-    // Construct the chat URL
-    const chatUrl = `https://chat.oneplace.hr/chat/${companyId}/${jobId}`;
+
+    // Construct the chat URL based on current domain
+    const hostname = window.location.hostname;
+    const chatDomain = hostname === 'kr.oneplace.hr' ? 'uz.oneplace.hr' : 'chat.oneplace.hr';
+    const chatUrl = `https://${chatDomain}/chat/${companyId}/${jobId}`;
     
     console.log('🌐 Opening URL:', chatUrl);
     
