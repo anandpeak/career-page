@@ -11,20 +11,67 @@ export const transformCompanyData = (apiData) => {
       description: (apiData.companyConfig && (apiData.companyConfig.companyDescription || apiData.companyConfig.description)) || apiData.description,
       photoUrl: apiData.photoUrl,
       color: apiData.color,
+      country: (apiData.companyConfig && apiData.companyConfig.country) || apiData.country || 'MN',
       // Prefer nested arrays from companyConfig; fall back to root-level arrays
       companyAdvantages: (apiData.companyConfig && apiData.companyConfig.companyAdvantages) || apiData.companyAdvantages || [],
       companyBenefits: (apiData.companyConfig && apiData.companyConfig.companyBenefits) || apiData.companyBenefits || []
     } : {})
   };
-  
+
   console.log('🏢 Transforming company config:', companyConfig);
-  
+
+  // Get country code
+  const country = companyConfig.country || 'MN';
+
+  // Determine translations based on country
+  let mnTranslations;
+  if (country === 'KZ') {
+    // Russian translations for Kazakhstan
+    mnTranslations = {
+      title: `Работать в ${companyConfig.name || 'Company'}`,
+      subtitle: 'Открытые вакансии',
+      findNearby: 'Найти ближайшие к дому',
+      selectStores: 'Выберите филиал',
+      selectPosition: 'Выберите вакансию',
+      availablePositions: 'Доступные вакансии',
+      apply: 'Подать заявку',
+      urgent: 'Срочно',
+      back: 'Назад'
+    };
+  } else if (country === 'UZ') {
+    // Uzbek translations for Uzbekistan
+    mnTranslations = {
+      title: `${companyConfig.name || 'Company'}da ishlash`,
+      subtitle: 'Ochiq ish o\'rinlari',
+      findNearby: 'Uyga yaqin ishga kirish',
+      selectStores: 'Filial tanlang',
+      selectPosition: 'Ish o\'rnini tanlang',
+      availablePositions: 'Ochiq ish o\'rinlari',
+      apply: 'Ishga kirish',
+      urgent: 'Shoshilinch',
+      back: 'Orqaga'
+    };
+  } else {
+    // Default Mongolian translations
+    mnTranslations = {
+      title: `${companyConfig.name || 'Company'}-д ажиллах`,
+      subtitle: 'Ажлын байр нээлттэй',
+      findNearby: 'Гэрт ойр ажилд оръё',
+      selectStores: 'Салбар сонгоорой',
+      selectPosition: 'Ажлын байр сонгох',
+      availablePositions: 'Нээлттэй ажлын байрууд',
+      apply: 'Ажилд оръё',
+      urgent: 'Яаралтай',
+      back: 'Буцах'
+    };
+  }
+
   return {
     companyId: companyConfig.companyId || 'company',
     brandName: companyConfig.name || 'Company',
     subdomain: `${companyConfig.name || 'company'}.oneplace.hr`,
     brandColor: companyConfig.color || '#3b82f6',
-    brandGradient: companyConfig.color 
+    brandGradient: companyConfig.color
       ? `linear-gradient(135deg, ${companyConfig.color}99 0%, ${companyConfig.color} 100%)`
       : 'linear-gradient(135deg, #0a1929 0%, #1e3a8a 25%, #1e40af 50%, #2563eb 75%, #3b82f6 100%)',
     logo: companyConfig.name || 'Company',
@@ -32,6 +79,7 @@ export const transformCompanyData = (apiData) => {
     description: companyConfig.companyDescription || companyConfig.description || '',
     companyAdvantages: companyConfig.companyAdvantages || [],
     companyBenefits: companyConfig.companyBenefits || [],
+    country: country,
     maxStoreSelection: 1,
     features: {
       hasShiftPreferences: true,
@@ -40,17 +88,7 @@ export const transformCompanyData = (apiData) => {
       allowsMultipleApplications: false
     },
     translations: {
-      mn: {
-        title: `${companyConfig.name || 'Company'}-д ажиллах`,
-        subtitle: 'Ажлын байр нээлттэй',
-        findNearby: 'Гэрт ойр ажилд оръё',
-        selectStores: 'Салбар сонгоорой',
-        selectPosition: 'Ажлын байр сонгох',
-        availablePositions: 'Нээлттэй ажлын байрууд',
-        apply: 'Ажилд оръё',
-        urgent: 'Яаралтай',
-        back: 'Буцах'
-      },
+      mn: mnTranslations,
       en: {
         title: `Work at ${companyConfig.name || 'Company'}`,
         subtitle: 'Open positions available',
