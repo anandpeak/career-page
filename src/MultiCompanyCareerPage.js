@@ -680,31 +680,31 @@ const MultiCompanyCareerPage = () => {
           switch(error.code) {
             case error.PERMISSION_DENIED:
               if (isAndroid) {
-                errorMessage = '🤖 Android дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Аппликейшн → Chrome/Browser → Зөвшөөрөл → Байршил → "Зөвшөөрөх" гэж сонгоно уу.';
+                errorMessage = getTranslation('errorPermissionDeniedAndroid');
               } else if (isSafari || isIOS) {
-                errorMessage = '📱 Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Safari → Байршил → "Зөвшөөрөх" гэж сонгоно уу.';
+                errorMessage = getTranslation('errorPermissionDeniedSafari');
               } else {
-                errorMessage = '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү.';
+                errorMessage = getTranslation('errorPermissionDenied');
               }
               break;
             case error.POSITION_UNAVAILABLE:
               if (isAndroid) {
-                errorMessage = '📍 Android дээр байршил олдохгүй байна. GPS-ийг идэвхжүүлж, интернет холболтоо шалгаад дахин оролдоно уу.';
+                errorMessage = getTranslation('errorPositionUnavailableAndroid');
               } else {
-                errorMessage = '📍 Байршил олдохгүй байна. GPS эсвэл интернет холболтоо шалгаад дахин оролдоно уу.';
+                errorMessage = getTranslation('errorPositionUnavailable');
               }
               break;
             case error.TIMEOUT:
               if (isAndroid) {
-                errorMessage = '⏱️ Android дээр байршил хүлээх хугацаа дууссан. GPS сигнал сул байж болзошгүй.';
+                errorMessage = getTranslation('errorTimeoutAndroid');
               } else if (isSafari || isIOS) {
-                errorMessage = '⏱️ Safari дээр байршил хүлээх хугацаа дууссан.';
+                errorMessage = getTranslation('errorTimeoutSafari');
               } else {
-                errorMessage = '⏱️ Байршил хүлээх хугацаа дууссан.';
+                errorMessage = getTranslation('errorTimeout');
               }
               break;
             default:
-              errorMessage = '❌ Байршил тодорхойлоход алдаа гарлаа.';
+              errorMessage = getTranslation('errorDefault');
           }
           
           setLocationError(errorMessage);
@@ -1166,7 +1166,7 @@ const MultiCompanyCareerPage = () => {
                                     fontSize: '12px',
                                     fontWeight: 'bold'
                                   }}>
-                                    🔥 Яаралтай
+                                    🔥 {getTranslation('urgent')}
                                   </span>
                                 )}
                               </div>
@@ -1188,7 +1188,7 @@ const MultiCompanyCareerPage = () => {
                                   fontWeight: '500'
                                 }}
                               >
-                                Ажлын байр харах
+                                {getTranslation('viewJobs')}
                               </button>
                             </div>
                           </Popup>
@@ -1209,7 +1209,7 @@ const MultiCompanyCareerPage = () => {
                         }
                       }}
                       className="location-button"
-                      title="Миний байршил"
+                      title={getTranslation('myLocation')}
                     >
                       <Navigation className="icon-sm" />
                     </button>
@@ -1425,7 +1425,7 @@ const MultiCompanyCareerPage = () => {
                       </div>
                       <div className="position-salary">{position.salaryRange}</div>
                       {isSelected && (
-                        <div className="selected-indicator">✓ Сонгогдсон</div>
+                        <div className="selected-indicator">✓ {getTranslation('selected')}</div>
                       )}
                     </div>
                   );

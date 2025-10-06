@@ -36,7 +36,20 @@ export const transformCompanyData = (apiData) => {
       availablePositions: 'Доступные вакансии',
       apply: 'Подать заявку',
       urgent: 'Срочно',
-      back: 'Назад'
+      back: 'Назад',
+      viewJobs: 'Посмотреть вакансии',
+      selected: 'Выбрано',
+      myLocation: 'Моё местоположение',
+      // Error messages
+      errorPermissionDenied: '🔒 Требуется разрешение на определение местоположения. Включите геолокацию в настройках браузера.',
+      errorPermissionDeniedAndroid: '🤖 Android: требуется разрешение на определение местоположения. Настройки → Приложения → Chrome/Browser → Разрешения → Местоположение → "Разрешить".',
+      errorPermissionDeniedSafari: '📱 Safari: требуется разрешение на определение местоположения. Настройки → Safari → Местоположение → "Разрешить".',
+      errorPositionUnavailable: '📍 Местоположение не найдено. Проверьте GPS или интернет-соединение и попробуйте снова.',
+      errorPositionUnavailableAndroid: '📍 Android: местоположение не найдено. Включите GPS, проверьте интернет и попробуйте снова.',
+      errorTimeout: '⏱️ Время ожидания истекло.',
+      errorTimeoutAndroid: '⏱️ Android: время ожидания истекло. GPS-сигнал может быть слабым.',
+      errorTimeoutSafari: '⏱️ Safari: время ожидания истекло.',
+      errorDefault: '❌ Ошибка определения местоположения.'
     };
   } else if (country === 'UZ') {
     // Uzbek translations for Uzbekistan
@@ -49,7 +62,20 @@ export const transformCompanyData = (apiData) => {
       availablePositions: 'Ochiq ish o\'rinlari',
       apply: 'Ishga kirish',
       urgent: 'Shoshilinch',
-      back: 'Orqaga'
+      back: 'Orqaga',
+      viewJobs: 'Ish o\'rinlarini ko\'rish',
+      selected: 'Tanlangan',
+      myLocation: 'Mening joylashuvim',
+      // Error messages
+      errorPermissionDenied: '🔒 Joylashuvni aniqlash uchun ruxsat kerak. Brauzer sozlamalaridan joylashuvni yoqing.',
+      errorPermissionDeniedAndroid: '🤖 Android: joylashuvni aniqlash uchun ruxsat kerak. Sozlamalar → Ilovalar → Chrome/Browser → Ruxsatlar → Joylashuv → "Ruxsat berish".',
+      errorPermissionDeniedSafari: '📱 Safari: joylashuvni aniqlash uchun ruxsat kerak. Sozlamalar → Safari → Joylashuv → "Ruxsat berish".',
+      errorPositionUnavailable: '📍 Joylashuv topilmadi. GPS yoki internet aloqasini tekshiring va qaytadan urinib ko\'ring.',
+      errorPositionUnavailableAndroid: '📍 Android: joylashuv topilmadi. GPS-ni yoqing, internetni tekshiring va qaytadan urinib ko\'ring.',
+      errorTimeout: '⏱️ Kutish vaqti tugadi.',
+      errorTimeoutAndroid: '⏱️ Android: kutish vaqti tugadi. GPS signali zaif bo\'lishi mumkin.',
+      errorTimeoutSafari: '⏱️ Safari: kutish vaqti tugadi.',
+      errorDefault: '❌ Joylashuvni aniqlashda xatolik.'
     };
   } else {
     // Default Mongolian translations
@@ -62,7 +88,20 @@ export const transformCompanyData = (apiData) => {
       availablePositions: 'Нээлттэй ажлын байрууд',
       apply: 'Ажилд оръё',
       urgent: 'Яаралтай',
-      back: 'Буцах'
+      back: 'Буцах',
+      viewJobs: 'Ажлын байр харах',
+      selected: 'Сонгогдсон',
+      myLocation: 'Миний байршил',
+      // Error messages
+      errorPermissionDenied: '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү.',
+      errorPermissionDeniedAndroid: '🤖 Android дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Аппликейшн → Chrome/Browser → Зөвшөөрөл → Байршил → "Зөвшөөрөх" гэж сонгоно уу.',
+      errorPermissionDeniedSafari: '📱 Safari дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Safari → Байршил → "Зөвшөөрөх" гэж сонгоно уу.',
+      errorPositionUnavailable: '📍 Байршил олдохгүй байна. GPS эсвэл интернет холболтоо шалгаад дахин оролдоно уу.',
+      errorPositionUnavailableAndroid: '📍 Android дээр байршил олдохгүй байна. GPS-ийг идэвхжүүлж, интернет холболтоо шалгаад дахин оролдоно уу.',
+      errorTimeout: '⏱️ Байршил хүлээх хугацаа дууссан.',
+      errorTimeoutAndroid: '⏱️ Android дээр байршил хүлээх хугацаа дууссан. GPS сигнал сул байж болзошгүй.',
+      errorTimeoutSafari: '⏱️ Safari дээр байршил хүлээх хугацаа дууссан.',
+      errorDefault: '❌ Байршил тодорхойлоход алдаа гарлаа.'
     };
   }
 
