@@ -1311,7 +1311,6 @@ const MultiCompanyCareerPage = () => {
     // Prevent default behavior and ensure Safari compatibility
     e.preventDefault();
     e.stopPropagation();
-    
     // Get company ID and job ID from API data
     const companyId = companyConfig.companyId; // 316
     const jobId = selectedPositions[0]?.positionId; // 2003
