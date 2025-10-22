@@ -535,7 +535,6 @@ const MultiCompanyCareerPage = () => {
                 </>
               )}
             </button>
-
             {/* Manual location option - especially helpful for Safari */}
             <button
               onClick={selectManualLocation}
