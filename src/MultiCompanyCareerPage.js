@@ -158,6 +158,40 @@ const COMPANY_CONFIGS = {
         selectedJob: 'Selected Position',
         locationSearching: 'Searching for your location...',
         mapLoading: 'Loading location...'
+      },
+      ru: {
+        title: 'Работа в GS25',
+        subtitle: 'Более 300 магазинов с вакансиями',
+        findNearby: 'Найти филиал рядом со мной',
+        selectStores: 'Выберите 1 вакансию',
+        selectPosition: 'Выберите должность',
+        availablePositions: 'Доступные вакансии',
+        apply: 'Подать заявку',
+        urgent: 'Срочно',
+        back: 'Назад',
+        // New comprehensive translations
+        heroTitleSuffix: ' - Открытые вакансии',
+        trendingBadge: 'Легко устроиться 🔥',
+        badgeGreen: 'Начните собеседование сразу! 🚀',
+        badgePink: 'Дружный коллектив 💫',
+        loadingLocation: 'Поиск вашего местоположения...',
+        salaryTitle: 'Конкурентная зарплата',
+        salarySubtitle: 'Ежедневная оплата',
+        flexibleHours: 'Гибкий график работы',
+        flexibleSubtitle: 'Выберите свое расписание',
+        noExperience: 'Опыт не требуется',
+        noExperienceSubtitle: 'Полное обучение',
+        nearbyStores: 'Филиалы рядом с мной',
+        selectStore: 'Выберите филиал',
+        loadingStores: 'Загрузка информации о магазине...',
+        yourLocation: 'Ваше местоположение',
+        viewJobs: 'Просмотреть вакансии',
+        jobsAvailable: 'доступно вакансий',
+        distanceFrom: 'от вас',
+        kmAway: 'км',
+        selectedJob: 'Выбранная вакансия',
+        locationSearching: 'Поиск вашего местоположения...',
+        mapLoading: 'Загрузка местоположения...'
       }
     }
   },
@@ -242,6 +276,40 @@ const COMPANY_CONFIGS = {
         selectedJob: 'Selected Position',
         locationSearching: 'Searching for your location...',
         mapLoading: 'Loading location...'
+      },
+      ru: {
+        title: 'Работа в Carrefour',
+        subtitle: 'Более 50 магазинов с вакансиями',
+        findNearby: 'Найти филиал рядом со мной',
+        selectStores: 'Выберите 1 вакансию',
+        selectPosition: 'Выберите должность',
+        availablePositions: 'Доступные вакансии',
+        apply: 'Подать заявку',
+        urgent: 'Срочно',
+        back: 'Назад',
+        // New comprehensive translations
+        heroTitleSuffix: ' - Открытые вакансии',
+        trendingBadge: 'Легко устроиться 🔥',
+        badgeGreen: 'Начните собеседование сразу! 🚀',
+        badgePink: 'Дружный коллектив 💫',
+        loadingLocation: 'Поиск вашего местоположения...',
+        salaryTitle: 'Конкурентная зарплата',
+        salarySubtitle: 'Ежедневная оплата',
+        flexibleHours: 'Гибкий график работы',
+        flexibleSubtitle: 'Выберите свое расписание',
+        noExperience: 'Опыт не требуется',
+        noExperienceSubtitle: 'Полное обучение',
+        nearbyStores: 'Филиалы рядом с мной',
+        selectStore: 'Выберите филиал',
+        loadingStores: 'Загрузка информации о магазине...',
+        yourLocation: 'Ваше местоположение',
+        viewJobs: 'Просмотреть вакансии',
+        jobsAvailable: 'доступно вакансий',
+        distanceFrom: 'от вас',
+        kmAway: 'км',
+        selectedJob: 'Выбранная вакансия',
+        locationSearching: 'Поиск вашего местоположения...',
+        mapLoading: 'Загрузка местоположения...'
       }
     }
   }
@@ -324,6 +392,7 @@ const MOCK_COMPANY_DATA = {
 const LANGUAGES = [
   { code: 'mn', name: 'Монгол', flag: '🇲🇳' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
 ];
 
 const MultiCompanyCareerPage = () => {
@@ -1102,7 +1171,7 @@ const MultiCompanyCareerPage = () => {
                       />
                       
                       {/* User location marker with custom icon containing text */}
-                      <Marker 
+                      <Marker
                         position={[userLocation.lat, userLocation.lng]}
                         icon={L.divIcon({
                           className: 'custom-user-location-marker',
@@ -1110,8 +1179,8 @@ const MultiCompanyCareerPage = () => {
                             <div class="user-location-pin">
                               <div class="pin-body">
                                 <div class="location-text">
-                                  <div class="text-line">Таны</div>
-                                  <div class="text-line">байршил</div>
+                                  <div class="text-line">${getTranslation('yourLocation').split(' ')[0]}</div>
+                                  <div class="text-line">${getTranslation('yourLocation').split(' ')[1]}</div>
                                 </div>
                               </div>
                               <div class="pin-tip"></div>
