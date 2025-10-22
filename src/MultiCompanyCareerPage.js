@@ -1319,9 +1319,16 @@ const MultiCompanyCareerPage = () => {
     console.log('🏢 Company:', companyConfig.brandName);
     console.log('💼 Job:', selectedPositions[0]?.positionTitle);
 
-    // Construct the chat URL based on current domain
-    const hostname = window.location.hostname;
-    const chatDomain = hostname === 'kr.oneplace.hr' ? 'uz.oneplace.hr' : 'chat.oneplace.hr';
+    // Construct the chat URL based on company country code
+    const country = companyConfig.country || 'MN';
+    let chatDomain;
+    if (country === 'UZ') {
+      chatDomain = 'uz.oneplace.hr';
+    } else if (country === 'KZ') {
+      chatDomain = 'kz.oneplace.hr';
+    } else {
+      chatDomain = 'chat.oneplace.hr';
+    }
     const chatUrl = `https://${chatDomain}/chat/${companyId}/${jobId}`;
     
     console.log('🌐 Opening URL:', chatUrl);

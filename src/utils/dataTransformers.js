@@ -45,6 +45,7 @@ export const transformCompanyData = (apiData) => {
       jobsAvailable: 'вакансий',
       selectedJob: 'Выбранная вакансия',
       startInterview: 'Перейти к собеседованию',
+      loadingLocation: 'Поиск местоположения...',
       // Error messages
       errorPermissionDenied: '🔒 Требуется разрешение на определение местоположения. Включите геолокацию в настройках браузера.',
       errorPermissionDeniedAndroid: '🤖 Android: требуется разрешение на определение местоположения. Настройки → Приложения → Chrome/Browser → Разрешения → Местоположение → "Разрешить".',
@@ -76,6 +77,7 @@ export const transformCompanyData = (apiData) => {
       jobsAvailable: 'ish o\'rni',
       selectedJob: 'Tanlangan ish o\'rni',
       startInterview: 'Suhbatga o\'tish',
+      loadingLocation: 'Joylashuv qidirilmoqda...',
       // Error messages
       errorPermissionDenied: '🔒 Joylashuvni aniqlash uchun ruxsat kerak. Brauzer sozlamalaridan joylashuvni yoqing.',
       errorPermissionDeniedAndroid: '🤖 Android: joylashuvni aniqlash uchun ruxsat kerak. Sozlamalar → Ilovalar → Chrome/Browser → Ruxsatlar → Joylashuv → "Ruxsat berish".',
@@ -107,6 +109,7 @@ export const transformCompanyData = (apiData) => {
       jobsAvailable: 'ажлын байр',
       selectedJob: 'Сонгосон ажлын байр',
       startInterview: 'Шууд ярилцлагад орох',
+      loadingLocation: 'Байршил хайж байна...',
       // Error messages
       errorPermissionDenied: '🔒 Байршил зөвшөөрөх шаардлагатай. Хөтчийн тохиргооноос байршлыг идэвхжүүлнэ үү.',
       errorPermissionDeniedAndroid: '🤖 Android дээр байршил зөвшөөрөх шаардлагатай. Тохиргоо → Аппликейшн → Chrome/Browser → Зөвшөөрөл → Байршил → "Зөвшөөрөх" гэж сонгоно уу.',
@@ -152,7 +155,16 @@ export const transformCompanyData = (apiData) => {
         availablePositions: 'Available Positions',
         apply: 'Apply',
         urgent: 'Urgent',
-        back: 'Back'
+        back: 'Back',
+        viewJobs: 'View Jobs',
+        selected: 'Selected',
+        myLocation: 'My Location',
+        nearbyStores: 'Stores Near You',
+        yourLocation: 'Your Location',
+        jobsAvailable: 'jobs available',
+        selectedJob: 'Selected Job',
+        startInterview: 'Start Interview',
+        loadingLocation: 'Finding your location...'
       }
     }
   };
